@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "http://localhost:5000/api/todos";
+const API_URL = "https://mern-todoapp-ht44.onrender.com/api/todos";
 
 export interface Todo {
   _id: string;
@@ -8,7 +8,10 @@ export interface Todo {
   completed: boolean;
 }
 
-export const getTodos = () => axios.get(API_URL);
+export const getTodos = async (): Promise<Todo[]> => {
+  const res = await axios.get(API_URL);
+  return res.data;
+};
 
 export const addTodo = (title: string) => {
   return axios.post<Todo>(API_URL, { title });

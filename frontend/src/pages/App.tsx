@@ -10,7 +10,17 @@ const App = () => {
   const [searchTodo, setSearchTodo] = useState("");
 
   useEffect(() => {
-    getTodos().then((res) => setTodos(res.data));
+    const fetchTodos = async () => {
+      try {
+        const todosFromServer = await getTodos();
+        setTodos(todosFromServer || []);
+        console.log("Todos from server:", todosFromServer);
+      } catch (error) {
+        console.error(error);
+        setTodos([]);
+      }
+    };
+    fetchTodos();
   }, []);
 
   const handleAdd = async (e: React.FormEvent) => {
