@@ -11,13 +11,13 @@ export interface Todo {
 export const getTodos = () => axios.get(API_URL);
 
 export const addTodo = (title: string) => {
-  axios.post<Todo>(API_URL, { title });
+  return axios.post<Todo>(API_URL, { title });
 };
 
 export const updateTodo = (id: string, completed: boolean) => {
-  axios.put<Todo>(`${API_URL}/${id}`, { completed });
+  return axios.put<Todo>(`${API_URL}/${id}`, { completed });
 };
 
 export const deleteTodo = (id: string) => {
-  axios.delete<Todo>(`${API_URL}/${id}`);
+  return axios.delete<Todo>(`${API_URL}/${id}`);
 };

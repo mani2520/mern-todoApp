@@ -1,0 +1,14 @@
+.my-thin-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.my-thin-scrollbar::-webkit-scrollbar-track {
+  background: #ebf8ff;
+  border-radius: 10px;
+}
+
+.my-thin-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #3b82f6;
+  border-radius: 10px;
+  border: 2px solid #ebf8ff;
+}
