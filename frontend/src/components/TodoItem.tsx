@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { Todo } from "../api/todoApi";
 
 interface Props {
@@ -11,6 +11,7 @@ interface Props {
 const TodoItem = ({ todo, onToggle, onDelete, onEdit }: Props) => {
   const [isEditing, setIsEditing] = useState(false);
   const [newTitle, setNewTitle] = useState(todo.title);
+  const textareaRef = useRef<HTMLTextAreaElement | null>(null);
 
   const handleSave = () => {
     if (newTitle.trim() && newTitle !== todo.title) {
@@ -25,11 +26,19 @@ const TodoItem = ({ todo, onToggle, onDelete, onEdit }: Props) => {
   };
 
   useEffect(() => {
+    if (isEditing && textareaRef.current) {
+      const textarea = textareaRef.current;
+      textarea.style.height = "auto";
+      textarea.style.height = `${textarea.scrollHeight}px`;
+    }
+  }, [newTitle, isEditing]);
+
+  useEffect(() => {
     setNewTitle(todo.title);
   }, [todo.title]);
 
   return (
-    <li className="flex items-center gap-3 bg-white dark:bg-gray-50 p-4 rounded-2xl shadow group hover:shadow-lg transition-all">
+    <li className="flex items-start gap-3 bg-white dark:bg-gray-50 p-4 rounded-2xl shadow group hover:shadow-lg transition-all w-full">
       <button
         onClick={() => onToggle(todo._id, todo.completed)}
         aria-label={todo.completed ? "Mark as incomplete" : "Mark as complete"}
@@ -59,29 +68,36 @@ const TodoItem = ({ todo, onToggle, onDelete, onEdit }: Props) => {
         )}
       </button>
 
-      <div className="flex-1 flex items-center min-w-0">
+      <div className="flex-1 flex items-start min-w-0">
         {isEditing ? (
           <form
-            className="flex w-full items-center gap-2"
+            className="flex w-full items-center gap-2 min-w-0"
             onSubmit={(e) => {
               e.preventDefault();
               handleSave();
             }}
           >
-            <input
+            <textarea
+              ref={textareaRef}
               value={newTitle}
               onChange={(e) => setNewTitle(e.target.value)}
-              className="flex-1 px-3 py-1.5 border border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 text-base bg-blue-50"
+              className="flex-1 min-w-0 px-3 py-1.5 border border-blue-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-300 text-base bg-blue-50 resize-none leading-relaxed max-h-40"
               autoFocus
-              maxLength={100}
+              maxLength={1000}
               aria-label="Edit todo"
+              rows={1}
+              style={{ overflow: "hidden" }}
               onKeyDown={(e) => {
                 if (e.key === "Escape") handleCancel();
+                if (e.key === "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  handleSave();
+                }
               }}
             />
             <button
               type="submit"
-              className="p-2 rounded-full bg-green-500 hover:bg-green-600 text-white transition focus:outline-none focus:ring-2 focus:ring-green-300"
+              className="p-1 rounded-full bg-green-500 hover:bg-green-600 text-white transition focus:outline-none focus:ring-2 focus:ring-green-300 flex-shrink-0"
               aria-label="Save"
               title="Save"
             >
@@ -101,7 +117,7 @@ const TodoItem = ({ todo, onToggle, onDelete, onEdit }: Props) => {
             <button
               type="button"
               onClick={handleCancel}
-              className="p-2 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-600 transition focus:outline-none focus:ring-2 focus:ring-gray-300"
+              className="p-1 rounded-full bg-gray-200 hover:bg-gray-300 text-gray-600 transition focus:outline-none focus:ring-2 focus:ring-gray-300 flex-shrink-0"
               aria-label="Cancel"
               title="Cancel"
             >
@@ -122,9 +138,8 @@ const TodoItem = ({ todo, onToggle, onDelete, onEdit }: Props) => {
             </button>
           </form>
         ) : (
-          <>
-            <span
-              className={`flex-1 text-base sm:text-lg select-none transition-colors break-words cursor-pointer outline-none
+          <span
+            className={`flex-1 text-base sm:text-lg select-none transition-colors break-words whitespace-pre-line cursor-pointer outline-none
                 ${
                   todo.completed
                     ? "line-through text-gray-400"
@@ -132,21 +147,20 @@ const TodoItem = ({ todo, onToggle, onDelete, onEdit }: Props) => {
                 }
                 group-hover:text-blue-700
               `}
-              onClick={() => onToggle(todo._id, todo.completed)}
-              tabIndex={0}
-              aria-label={
-                todo.completed ? "Mark as incomplete" : "Mark as complete"
+            onClick={() => onToggle(todo._id, todo.completed)}
+            tabIndex={0}
+            aria-label={
+              todo.completed ? "Mark as incomplete" : "Mark as complete"
+            }
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                onToggle(todo._id, todo.completed);
               }
-              onKeyDown={(e) => {
-                if (e.key === "Enter" || e.key === " ") {
-                  onToggle(todo._id, todo.completed);
-                }
-              }}
-              title={todo.title}
-            >
-              {todo.title}
-            </span>
-          </>
+            }}
+            title={todo.title}
+          >
+            {todo.title}
+          </span>
         )}
       </div>
 
