@@ -32,10 +32,14 @@ const App = () => {
   };
 
   const handleToggle = async (id: string, completed: boolean) => {
-    await updateTodo(id, !completed);
-    setTodos(
-      todos.map((t) => (t._id === id ? { ...t, completed: !t.completed } : t))
-    );
+    try {
+      const updated = await updateTodo(id, { completed: !completed });
+      setTodos((prev) =>
+        prev.map((t) =>
+          t._id === id ? { ...t, completed: updated.completed } : t
+        )
+      );
+    } catch (error) {}
   };
 
   const handleDelete = async (id: string) => {
@@ -43,8 +47,22 @@ const App = () => {
     setTodos(todos.filter((t) => t._id !== id));
   };
 
+  const handleEdit = async (id: string, newTitle: string) => {
+    if (!newTitle.trim()) return;
+    try {
+      const updated = await updateTodo(id, { title: newTitle });
+      setTodos((prev) =>
+        prev.map((todo) =>
+          todo._id === id ? { ...todo, title: updated.title } : todo
+        )
+      );
+    } catch (error) {
+      console.error("Edit failed:", error);
+    }
+  };
+
   const searchTodos = todos.filter((todo) => {
-    return todo.title.toLowerCase().includes(searchTodo.toLowerCase());
+    return (todo.title || "").toLowerCase().includes(searchTodo.toLowerCase());
   });
 
   return (
@@ -77,6 +95,7 @@ const App = () => {
                 todo={todo}
                 onToggle={handleToggle}
                 onDelete={handleDelete}
+                onEdit={handleEdit}
               />
             ))
           )}

@@ -17,8 +17,9 @@ export const addTodo = (title: string) => {
   return axios.post<Todo>(API_URL, { title });
 };
 
-export const updateTodo = (id: string, completed: boolean) => {
-  return axios.put<Todo>(`${API_URL}/${id}`, { completed });
+export const updateTodo = async (id: string, data: Partial<Todo>) => {
+  const res = await axios.put(`${API_URL}/${id}`, data);
+  return res.data;
 };
 
 export const deleteTodo = (id: string) => {
