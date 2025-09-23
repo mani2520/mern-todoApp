@@ -2,7 +2,7 @@ const Todo = require("../models/Todo");
 
 const getTodos = async (req, res) => {
   try {
-    const todos = await Todo.find();
+    const todos = await Todo.find({ userId: req.user._id });
     res.json(todos);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -13,6 +13,7 @@ const createTodo = async (req, res) => {
   try {
     const todo = new Todo({
       title: req.body.title,
+      userId: req.user._id,
     });
     const saveTodo = await todo.save();
     res.status(201).json(saveTodo);
@@ -24,7 +25,7 @@ const createTodo = async (req, res) => {
 const updateTodo = async (req, res) => {
   try {
     const updatedTodo = await Todo.findByIdAndUpdate(
-      req.params.id,
+      { _id: req.params.id, userId: req.user._id },
       {
         $set: req.body,
       },
@@ -38,7 +39,7 @@ const updateTodo = async (req, res) => {
 
 const deleteTodo = async (req, res) => {
   try {
-    await Todo.findByIdAndDelete(req.params.id);
+    await Todo.findByIdAndDelete({ _id: req.params.id, userId: req.user._id });
     res.json({ message: "Todo Deleted Successfully" });
   } catch (error) {
     res.status(500).json({ message: error.message });
