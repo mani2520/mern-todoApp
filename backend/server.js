@@ -4,11 +4,15 @@ const cors = require("cors");
 
 const todoRoutes = require("./routes/todoRoutes");
 
+const authRouters = require("./routes/auth");
+
 const app = express();
 app.use(cors());
 app.use(express.json());
 
 app.use("/api/todos", todoRoutes);
+
+app.use("/api", authRouters);
 
 require("dotenv").config();
 
