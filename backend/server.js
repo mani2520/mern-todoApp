@@ -16,6 +16,8 @@ app.use("/api", authRouters);
 
 require("dotenv").config();
 
+require("./cron");
+
 app.get("/", (req, res) => {
   res.send("Server runnnig successfully");
 });

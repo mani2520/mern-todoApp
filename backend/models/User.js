@@ -4,8 +4,12 @@ const userSchema = new mongoose.Schema(
   {
     username: { type: String, required: true, unique: true },
     email: { type: String, required: true, unique: true },
-    password: { type: String, required: true },
-    isVerified: { type: Boolean, default: false },
+    password: { type: String, required: true, minlength: 4, maxlength: 8 },
+    verified: { type: Boolean, default: false },
+    emailOTP: String,
+    emailOTPExpire: Date,
+    resetOTP: String,
+    resetOTPExpire: Date,
   },
   { timestamps: true }
 );

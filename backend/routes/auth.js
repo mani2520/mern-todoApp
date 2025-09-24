@@ -30,7 +30,15 @@ router.post("/register", async (req, res) => {
     const otp = setOtp(user, "email");
     await user.save();
 
-    await sendEmail(email, "verify your account", `Your OTP is ${otp}`);
+    const emailBodyContent = `
+    Hello ${user.username},
+
+    Your OTP is ${otp}. 
+    It is valid for 10 minutes.
+
+    Do not share it with anyone.`;
+
+    await sendEmail(email, "verify your account", emailBodyContent);
 
     res.json({ message: "Registered successfully, check your email for OTP" });
   } catch (error) {
@@ -47,7 +55,7 @@ router.post("/verify-email", async (req, res) => {
   if (!user || user.emailOTP !== otp || user.emailOTPExpire < Date.now()) {
     return res.status(400).json({ message: "Invalid or Expire OTP" });
   }
-  (user.isVerified = true),
+  (user.verified = true),
     (user.emailOTP = undefined),
     (user.emailOTPExpire = undefined),
     await user.save();
@@ -62,16 +70,12 @@ router.post(`/login`, async (req, res) => {
     const user = await User.findOne({ email });
     if (!user) return res.status(400).json({ message: "Invalid User" });
 
-    if (!user.isVerified) {
-      return res.status(400).json({
-        message: "Email not verified, Please verify your email first",
-      });
-    }
-
     const valid = await bcrypt.compare(password, user.password);
     if (!valid) return res.status(400).json({ message: "Invalid password" });
 
-    const token = jwt.sign({ id: user._id }, "secretkey", { expiresIn: "1d" });
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "1d",
+    });
     res.json({ token, username: user.username });
   } catch (error) {
     res.status(500).json({ message: "Server Error" });
@@ -94,11 +98,20 @@ router.post("/change-password", authMiddleware, async (req, res) => {
   try {
     const { oldPassword, newPassword } = req.body;
 
+    if (!oldPassword || !newPassword) {
+      return res
+        .status(400)
+        .json({ message: "oldPassword & newPassword required" });
+    }
+
+    const user = await User.findById(req.user._id);
+    if (!user) return res.status(401).json({ message: "User not found" });
+
     const isMatch = await bcrypt.compare(oldPassword, req.user.password);
     if (!isMatch)
       return res.status(400).json({ message: "old password is incorrect" });
 
-    const hashed = await bcrypt.hased(newPassword, 10);
+    const hashed = await bcrypt.hash(newPassword, 10);
     req.user.password = hashed;
     await req.user.save();
 
@@ -121,7 +134,15 @@ router.post("/forgot-password", async (req, res) => {
 
     await user.save();
 
-    await sendEmail(user.email, "Password Reset OTP", `Your OTP is ${otp}`);
+    const emailBodyContent = `
+    Hello ${user.username},
+
+    Your OTP is ${otp}. 
+    It is valid for 10 minutes.
+
+    Do not share it with anyone.`;
+
+    await sendEmail(user.email, "Password Reset OTP", emailBodyContent);
 
     res.json({ message: "OTP sent to email" });
   } catch (error) {
@@ -138,8 +159,8 @@ router.post("/reset-password", async (req, res) => {
     if (!user || user.resetOTP !== otp || user.resetOTPExpire < Date.now()) {
       return res.status(400).json({ message: "Invalid or Expired OTP" });
     }
-    const hased = await bcrypt.hash(newPassword, 10);
-    user.password = hased;
+    const hashed = await bcrypt.hash(newPassword, 10);
+    user.password = hashed;
     user.resetOTP = undefined;
     user.resetOTPExpire = undefined;
     await user.save();
@@ -163,7 +184,15 @@ router.post("/resend-otp", async (req, res) => {
     const otp = setOtp(user, "email");
     await user.save();
 
-    await sendEmail(email, "Verify your account", `Your OTP is ${otp}`);
+    const emailBodyContent = `
+    Hello ${user.username},
+
+    Your OTP is ${otp}. 
+    It is valid for 10 minutes.
+
+    Do not share it with anyone.`;
+
+    await sendEmail(email, "Verify your account", emailBodyContent);
     res.json({ message: "OTP resent successfully" });
   } catch (error) {
     res.status(500).json({ message: "Server error" });
@@ -181,12 +210,20 @@ router.post("/update-email", async (req, res) => {
     if (!user) return res.status(400).json({ message: "User not found" });
 
     user.email = newEmail;
-    user.isVerified = false;
+    user.verified = false;
 
     const otp = setOtp(user, "email");
     await user.save();
 
-    await sendEmail(newEmail, "Verify your new email", `Your OTP is ${otp}`);
+    const emailBodyContent = `
+    Hello ${user.username},
+
+    Your OTP is ${otp}. 
+    It is valid for 10 minutes.
+
+    Do not share it with anyone.`;
+
+    await sendEmail(newEmail, "Verify your new email", emailBodyContent);
     res.json({ message: "Email updated. Please verify new Email" });
   } catch (error) {
     res.status(500).json({ message: "server error", error: error.message });
