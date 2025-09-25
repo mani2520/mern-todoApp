@@ -1,37 +1,38 @@
-import React from "react";
 import { useState, useContext } from "react";
-import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 import api from "../api/axios";
 import { toast } from "react-toastify";
 
-interface LoginResponse {
+interface RegisterResponse {
   token: string;
   username: string;
 }
 
-const Login = () => {
+const Register = () => {
+  const [username, setUserName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
   const { login } = useContext(AuthContext);
-
   const navigate = useNavigate();
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      const res = await api.post<LoginResponse>(`/login`, {
+      const res = await api.post<RegisterResponse>("/register", {
+        username,
         email,
         password,
       });
 
       login(res.data.token);
-      toast.success("Login success");
-      navigate("/");
+
+      toast.success("Account created!");
+      navigate("/login");
     } catch (error: any) {
-      toast.error(error.response?.data?.message);
+      toast.error(error.response?.data?.message || "Server Error");
       setError(error.response?.data?.message);
     }
   };
@@ -40,43 +41,52 @@ const Login = () => {
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="w-full max-w-md bg-white rounded-lg shadow-md p-8">
         <h2 className="text-2xl font-bold mb-6 text-center text-gray-800">
-          Login
+          Register
         </h2>
-        <form onSubmit={handleLogin} className="space-y-5">
+        <form className="space-y-5" onSubmit={handleRegister}>
+          <div>
+            <input
+              type="text"
+              placeholder="Enter your name"
+              value={username}
+              onChange={(e) => setUserName(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+              required
+            />
+          </div>
           <div>
             <input
               type="email"
-              placeholder="Enter your email"
+              placeholder="Enter your Email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              required
               className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+              required
             />
           </div>
           <div>
             <input
               type="password"
-              placeholder="Enter your password"
+              placeholder="Enter your Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              required
               className="w-full px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+              required
             />
           </div>
           <button
             type="submit"
             className="cursor-pointer w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition-colors font-semibold"
           >
-            Login
+            Register
           </button>
           {error && <p className="text-red-500 text-center text-sm">{error}</p>}
         </form>
-
         <div className="text-center mt-2">
           <p>
-            You don't have an account?{" "}
-            <a href="/register" className="text-blue-600 hover:underline">
-              Register
+            You have an account?{" "}
+            <a href="/login" className="text-blue-600 hover:underline">
+              Login
             </a>
           </p>
         </div>
@@ -85,4 +95,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default Register;
