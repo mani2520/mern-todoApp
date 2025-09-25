@@ -4,11 +4,6 @@ import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 
-interface LoginPayload {
-  email: string;
-  password: string;
-}
-
 interface LoginResponse {
   token: string;
   user: {
