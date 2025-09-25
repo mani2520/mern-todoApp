@@ -2,9 +2,8 @@ import { useState, useEffect } from "react";
 import { getTodos, addTodo, updateTodo, deleteTodo } from "../api/todoApi";
 import type { Todo } from "../api/todoApi";
 import TodoItem from "../components/TodoItem";
-import "./App.css";
 
-const App = () => {
+const Todo = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
   const [title, setTitle] = useState("");
   const [searchTodo, setSearchTodo] = useState("");
@@ -127,4 +126,4 @@ const App = () => {
   );
 };
 
-export default App;
+export default Todo;

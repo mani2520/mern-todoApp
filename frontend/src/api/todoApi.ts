@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const API_URL = "https://mern-todoapp-ht44.onrender.com/api/todos";
+const API_URL = import.meta.env.API_URL;
 
 export interface Todo {
   _id: string;
@@ -9,19 +9,33 @@ export interface Todo {
 }
 
 export const getTodos = async (): Promise<Todo[]> => {
-  const res = await axios.get(API_URL);
+  const token = localStorage.getItem("token");
+  const res = await axios.get(`${API_URL}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
   return res.data;
 };
 
 export const addTodo = (title: string) => {
-  return axios.post<Todo>(API_URL, { title });
+  const token = localStorage.getItem("token");
+  return axios.post<Todo>(
+    `${API_URL}`,
+    { title },
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
 };
 
 export const updateTodo = async (id: string, data: Partial<Todo>) => {
-  const res = await axios.put(`${API_URL}/${id}`, data);
+  const token = localStorage.getItem("token");
+  const res = await axios.put(`${API_URL}/${id}`, data, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
   return res.data;
 };
 
 export const deleteTodo = (id: string) => {
-  return axios.delete<Todo>(`${API_URL}/${id}`);
+  const token = localStorage.getItem("token");
+  return axios.delete<Todo>(`${API_URL}/${id}`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
 };
