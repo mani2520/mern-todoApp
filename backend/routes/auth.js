@@ -41,7 +41,6 @@ router.post("/register", async (req, res) => {
 });
 
 router.post("/send-verify-otp", authMiddleware, async (req, res) => {
-  console.log("Route hit ✅");
   try {
     const user = req.user;
     if (user.verified) {
