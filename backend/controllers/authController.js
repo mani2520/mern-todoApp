@@ -22,6 +22,7 @@ const register = async (req, res) => {
       username,
       email,
       password: hashed,
+      verified: false,
     });
 
     await user.save();

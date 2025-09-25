@@ -25,26 +25,44 @@ router.post("/register", async (req, res) => {
       username,
       email,
       password: hashed,
+      verified: false,
     });
 
-    const otp = setOtp(user, "email");
     await user.save();
 
-    const emailBodyContent = `
-    Hello ${user.username},
-
-    Your OTP is ${otp}. 
-    It is valid for 10 minutes.
-
-    Do not share it with anyone.`;
-
-    await sendEmail(email, "verify your account", emailBodyContent);
-
-    res.json({ message: "Registered successfully, check your email for OTP" });
+    res.json({
+      message: "Registered successfully, Please verify your account",
+    });
   } catch (error) {
     res
       .status(400)
       .json({ message: "Error registering user", error: error.message });
+  }
+});
+
+router.post("/send-verify-otp", async (req, res) => {
+  try {
+    const user = req.user;
+    if (user.verified) {
+      return res.status(400).json({ message: "Account already verified" });
+    }
+    const otp = setOtp(user, "email");
+    await user.save();
+
+    const message = `
+      Hello ${user.username},
+
+      Your OTP is ${otp}.
+      It is valid for 10 minutes.
+
+      Do not share it with anyone.
+    `;
+
+    await sendEmail(user.email, "Verify your account", message);
+
+    res.json({ message: "OTP sent to your email" });
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
   }
 });
 
