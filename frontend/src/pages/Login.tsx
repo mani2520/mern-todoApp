@@ -29,9 +29,8 @@ const Login = () => {
 
       login(res.data.token);
       toast.success("Login success");
-      navigate("/");
+      navigate("/", { replace: true });
     } catch (error: any) {
-      toast.error(error.response?.data?.message);
       setError(error.response?.data?.message);
     }
   };

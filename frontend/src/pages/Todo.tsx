@@ -1,21 +1,24 @@
 import { useState, useEffect } from "react";
 import { getTodos, addTodo, updateTodo, deleteTodo } from "../api/todoApi";
-import type { Todo } from "../api/todoApi";
+import type { TodoApi } from "../api/todoApi";
 import TodoItem from "../components/TodoItem";
+import { toast } from "react-toastify";
 
 const Todo = () => {
-  const [todos, setTodos] = useState<Todo[]>([]);
+  const [todos, setTodos] = useState<TodoApi[]>([]);
   const [title, setTitle] = useState("");
   const [searchTodo, setSearchTodo] = useState("");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchTodos = async () => {
       try {
         const todosFromServer = await getTodos();
-        setTodos(todosFromServer || []);
-        console.log("Todos from server:", todosFromServer);
+        console.log("✅ Todos from server:", todosFromServer);
+        setTodos(todosFromServer);
       } catch (error) {
         console.error(error);
+        toast.error("Failed to load todos");
         setTodos([]);
       }
     };
@@ -25,9 +28,15 @@ const Todo = () => {
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) return;
-    const res = await addTodo(title);
-    setTodos([...todos, res.data]);
-    setTitle("");
+    setLoading(true);
+    try {
+      const res = await addTodo(title);
+      setTodos([...todos, res.data]);
+      setTitle("");
+      toast.success("Task added!");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleToggle = async (id: string, completed: boolean) => {
@@ -38,12 +47,16 @@ const Todo = () => {
           t._id === id ? { ...t, completed: updated.completed } : t
         )
       );
-    } catch (error) {}
+      toast.success("Task updated!");
+    } catch (error) {
+      toast.error(`${error}`);
+    }
   };
 
   const handleDelete = async (id: string) => {
     await deleteTodo(id);
     setTodos(todos.filter((t) => t._id !== id));
+    toast.success("Task deleted!");
   };
 
   const handleEdit = async (id: string, newTitle: string) => {
@@ -55,6 +68,7 @@ const Todo = () => {
           todo._id === id ? { ...todo, title: updated.title } : todo
         )
       );
+      toast.success("Task updated!");
     } catch (error) {
       console.error("Edit failed:", error);
     }
@@ -118,7 +132,7 @@ const Todo = () => {
             className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2 rounded-xl shadow transition disabled:opacity-50"
             disabled={!title.trim()}
           >
-            Add
+            {loading ? "Adding..." : "Add"}
           </button>
         </form>
       </section>

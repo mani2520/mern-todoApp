@@ -2,8 +2,10 @@ import { Routes, Route } from "react-router-dom";
 
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import { ToastContainer } from "react-toastify";
 import Todo from "./pages/Todo";
+
+import { ToastContainer } from "react-toastify";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const App = () => {
   return (
@@ -11,7 +13,14 @@ const App = () => {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/" element={<Todo />} />
+        <Route
+          path="/"
+          element={
+            <ProtectedRoute>
+              <Todo />
+            </ProtectedRoute>
+          }
+        />
       </Routes>
       <ToastContainer position="top-center" autoClose={4000} />
     </>

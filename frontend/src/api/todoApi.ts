@@ -1,12 +1,12 @@
 import api from "./axios";
 
-export interface Todo {
+export interface TodoApi {
   _id: string;
   title: string;
   completed: boolean;
 }
 
-export const getTodos = async (): Promise<Todo[]> => {
+export const getTodos = async (): Promise<TodoApi[]> => {
   const token = localStorage.getItem("token");
   const res = await api.get(`/`, {
     headers: { Authorization: `Bearer ${token}` },
@@ -16,14 +16,14 @@ export const getTodos = async (): Promise<Todo[]> => {
 
 export const addTodo = (title: string) => {
   const token = localStorage.getItem("token");
-  return api.post<Todo>(
+  return api.post<TodoApi>(
     `/`,
     { title },
     { headers: { Authorization: `Bearer ${token}` } }
   );
 };
 
-export const updateTodo = async (id: string, data: Partial<Todo>) => {
+export const updateTodo = async (id: string, data: Partial<TodoApi>) => {
   const token = localStorage.getItem("token");
   const res = await api.put(`/${id}`, data, {
     headers: { Authorization: `Bearer ${token}` },
@@ -33,7 +33,7 @@ export const updateTodo = async (id: string, data: Partial<Todo>) => {
 
 export const deleteTodo = (id: string) => {
   const token = localStorage.getItem("token");
-  return api.delete<Todo>(`/${id}`, {
+  return api.delete<TodoApi>(`/${id}`, {
     headers: { Authorization: `Bearer ${token}` },
   });
 };

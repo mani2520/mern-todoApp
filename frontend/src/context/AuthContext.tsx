@@ -1,4 +1,4 @@
-import { type ReactNode, createContext, useState } from "react";
+import { type ReactNode, createContext, useState, useContext } from "react";
 
 interface AuthContextType {
   token: string | null;
@@ -36,4 +36,10 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
       {children}
     </AuthContext.Provider>
   );
+};
+
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) throw new Error("useAuth must be used within AuthProvider");
+  return context;
 };
