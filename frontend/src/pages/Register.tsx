@@ -33,9 +33,7 @@ const Register = () => {
         email,
         password,
       });
-
-      login(res.data.token);
-
+      login(res.data.token, res.data.username);
       toast.success("Account created!");
       navigate("/login");
     } catch (error: any) {

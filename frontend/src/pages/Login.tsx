@@ -33,7 +33,7 @@ const Login = () => {
         password,
       });
 
-      login(res.data.token);
+      login(res.data.token, res.data.username);
       toast.success("Login success");
       navigate("/", { replace: true });
     } catch (error: any) {

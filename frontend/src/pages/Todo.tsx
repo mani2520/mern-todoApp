@@ -15,14 +15,20 @@ const Todo = () => {
   const [loading, setLoading] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
+  const { username: contextUsername } = useAuth();
+
+  const [username, setUsername] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (contextUsername) setUsername(contextUsername);
+  }, [contextUsername]);
+
   useEffect(() => {
     const fetchTodos = async () => {
       try {
         const todosFromServer = await getTodos();
-        console.log("✅ Todos from server:", todosFromServer);
         setTodos(todosFromServer);
       } catch (error) {
-        console.error(error);
         toast.error("Failed to load todos");
         setTodos([]);
       }
@@ -32,7 +38,9 @@ const Todo = () => {
 
   const handleAdd = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (!title.trim()) return;
+
     setLoading(true);
     try {
       const res = await addTodo(title);
@@ -75,7 +83,7 @@ const Todo = () => {
       );
       toast.success("Task updated!");
     } catch (error) {
-      console.error("Edit failed:", error);
+      toast.error(`${error}`);
     }
   };
 
@@ -116,6 +124,19 @@ const Todo = () => {
             </button>
             {dropdownOpen && (
               <ul className="absolute right-0 mt-2 w-40 bg-white rounded-xl shadow-lg border border-gray-100 z-20 animate-fade-in">
+                <li className="px-5 py-3 bg-blue-50 text-gray-700 font-medium rounded-t-xl transition">
+                  <span className="flex items-center gap-2">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="currentColor"
+                      viewBox="0 0 24 24"
+                      className="w-8 h-8 text-blue-700"
+                    >
+                      <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z" />
+                    </svg>
+                    {username ?? "User"}
+                  </span>
+                </li>
                 <li className="px-5 py-3 hover:bg-blue-50 text-gray-700 font-medium cursor-pointer rounded-t-xl transition">
                   <span className="flex items-center gap-2">
                     <svg
@@ -131,7 +152,9 @@ const Todo = () => {
                   </span>
                 </li>
                 <li
-                  onClick={logout}
+                  onClick={() => {
+                    logout(), toast.success("Logged out successfully!");
+                  }}
                   className="px-5 py-3 hover:bg-red-50 text-red-500 font-semibold cursor-pointer rounded-b-xl transition flex items-center gap-2"
                 >
                   <svg
