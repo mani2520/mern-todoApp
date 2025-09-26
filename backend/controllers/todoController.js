@@ -24,8 +24,9 @@ const createTodo = async (req, res) => {
 
 const updateTodo = async (req, res) => {
   try {
-    const updatedTodo = await Todo.findByIdAndUpdate(
+    const updatedTodo = await Todo.findOneAndUpdate(
       { _id: req.params.id, userId: req.user._id },
+
       {
         $set: req.body,
       },
@@ -39,7 +40,7 @@ const updateTodo = async (req, res) => {
 
 const deleteTodo = async (req, res) => {
   try {
-    await Todo.findByIdAndDelete({ _id: req.params.id, userId: req.user._id });
+    await Todo.findOneAndDelete({ _id: req.params.id, userId: req.user._id });
     res.json({ message: "Todo Deleted Successfully" });
   } catch (error) {
     res.status(500).json({ message: error.message });

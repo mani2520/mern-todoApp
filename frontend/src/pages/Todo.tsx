@@ -4,11 +4,16 @@ import type { TodoApi } from "../api/todoApi";
 import TodoItem from "../components/TodoItem";
 import { toast } from "react-toastify";
 
+import { useAuth } from "../context/AuthContext";
+
 const Todo = () => {
+  const { logout } = useAuth();
+
   const [todos, setTodos] = useState<TodoApi[]>([]);
   const [title, setTitle] = useState("");
   const [searchTodo, setSearchTodo] = useState("");
   const [loading, setLoading] = useState(false);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
   useEffect(() => {
     const fetchTodos = async () => {
@@ -81,10 +86,68 @@ const Todo = () => {
   return (
     <main className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center p-4">
       <section className="w-full max-w-lg bg-white rounded-3xl shadow-xl p-8">
-        <header className="mb-8">
-          <h1 className="text-3xl font-extrabold text-center text-blue-700 tracking-tight mb-2">
-            Todo App
-          </h1>
+        <header className="mb-8 flex items-center justify-between">
+          <div className="flex-1">
+            <h1 className="text-4xl font-extrabold text-blue-700 tracking-tight mb-1 text-left drop-shadow-sm">
+              <span className="bg-gradient-to-r from-blue-600 via-blue-400 to-blue-600 bg-clip-text text-transparent">
+                Todo App
+              </span>
+            </h1>
+            <p className="text-gray-400 text-sm font-medium pl-1">
+              Stay organized, stay productive
+            </p>
+          </div>
+          <div className="relative">
+            <button
+              onClick={() => setDropdownOpen(!dropdownOpen)}
+              className="focus:outline-none"
+              aria-label="User menu"
+            >
+              <span className=" w-12 h-12 rounded-full bg-gradient-to-br from-blue-200 to-blue-400 border-2 border-blue-300 shadow hover:shadow-lg transition-all flex items-center justify-center">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                  className="w-8 h-8 text-blue-700"
+                >
+                  <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z" />
+                </svg>
+              </span>
+            </button>
+            {dropdownOpen && (
+              <ul className="absolute right-0 mt-2 w-40 bg-white rounded-xl shadow-lg border border-gray-100 z-20 animate-fade-in">
+                <li className="px-5 py-3 hover:bg-blue-50 text-gray-700 font-medium cursor-pointer rounded-t-xl transition">
+                  <span className="flex items-center gap-2">
+                    <svg
+                      className="w-4 h-4 text-blue-400"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      viewBox="0 0 24 24"
+                    >
+                      <path d="M12 4v16m8-8H4" />
+                    </svg>
+                    Settings
+                  </span>
+                </li>
+                <li
+                  onClick={logout}
+                  className="px-5 py-3 hover:bg-red-50 text-red-500 font-semibold cursor-pointer rounded-b-xl transition flex items-center gap-2"
+                >
+                  <svg
+                    className="w-4 h-4 text-red-400"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    viewBox="0 0 24 24"
+                  >
+                    <path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H7a2 2 0 01-2-2V7a2 2 0 012-2h4a2 2 0 012 2v1" />
+                  </svg>
+                  Logout
+                </li>
+              </ul>
+            )}
+          </div>
         </header>
 
         <div className="mb-4">
