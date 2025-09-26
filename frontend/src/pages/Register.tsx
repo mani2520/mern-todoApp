@@ -1,4 +1,4 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { AuthContext } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import api from "../api/axios";
@@ -17,6 +17,13 @@ const Register = () => {
 
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
+  const { token } = useContext(AuthContext);
+
+  useEffect(() => {
+    if (token) {
+      navigate("/");
+    }
+  }, [token, navigate]);
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();

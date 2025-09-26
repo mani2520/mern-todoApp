@@ -25,7 +25,7 @@ export const addTodo = (title: string) => {
 
 export const updateTodo = async (id: string, data: Partial<TodoApi>) => {
   const token = localStorage.getItem("token");
-  const res = await api.put(`/todos/${id}`, data, {
+  const res = await api.put(`/${id}`, data, {
     headers: { Authorization: `Bearer ${token}` },
   });
   return res.data;
@@ -33,7 +33,7 @@ export const updateTodo = async (id: string, data: Partial<TodoApi>) => {
 
 export const deleteTodo = (id: string) => {
   const token = localStorage.getItem("token");
-  return api.delete<TodoApi>(`/todos/${id}`, {
+  return api.delete<TodoApi>(`/${id}`, {
     headers: { Authorization: `Bearer ${token}` },
   });
 };

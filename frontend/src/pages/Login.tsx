@@ -1,5 +1,5 @@
 import React from "react";
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import api from "../api/axios";
@@ -16,8 +16,14 @@ const Login = () => {
   const [error, setError] = useState("");
 
   const { login } = useContext(AuthContext);
-
   const navigate = useNavigate();
+  const { token } = useContext(AuthContext);
+
+  useEffect(() => {
+    if (token) {
+      navigate("/");
+    }
+  }, [token, navigate]);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
