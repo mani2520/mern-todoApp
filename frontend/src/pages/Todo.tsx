@@ -47,6 +47,9 @@ const Todo = () => {
       setTodos([...todos, res.data]);
       setTitle("");
       toast.success("Task added!");
+    } catch (error: any) {
+      console.log(error);
+      toast.error(`${error.response?.data?.message}`);
     } finally {
       setLoading(false);
     }
@@ -86,6 +89,10 @@ const Todo = () => {
       toast.error(`${error}`);
     }
   };
+
+  const formattedUsername = username
+    ? username.charAt(0).toUpperCase() + username.slice(1)
+    : "User";
 
   const searchTodos = todos.filter((todo) => {
     return (todo.title || "").toLowerCase().includes(searchTodo.toLowerCase());
@@ -134,7 +141,7 @@ const Todo = () => {
                     >
                       <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z" />
                     </svg>
-                    {username ?? "User"}
+                    {formattedUsername}
                   </span>
                 </li>
                 <li className="px-5 py-3 hover:bg-blue-50 text-gray-700 font-medium cursor-pointer rounded-t-xl transition">
