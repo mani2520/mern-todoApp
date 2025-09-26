@@ -11,7 +11,7 @@ corn.schedule("0 * * * *", async () => {
   });
 
   for (const user of users) {
-    await Todo.deleteMany({ user: user._id });
+    await Todo.deleteMany({ userId: user._id });
     await user.deleteOne();
   }
 
