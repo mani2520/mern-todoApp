@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import type { Todo } from "../api/todoApi";
+import type { TodoApi } from "../api/todoApi";
 
 interface Props {
-  todo: Todo;
+  todo: TodoApi;
   onToggle: (id: string, completed: boolean) => void;
   onDelete: (id: string) => void;
   onEdit: (id: string, newTitle: string) => void;

@@ -2,11 +2,8 @@ import React from "react";
 import { useState, useContext } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
-<<<<<<< HEAD
-=======
 import api from "../api/axios";
 import { toast } from "react-toastify";
->>>>>>> dev
 
 interface LoginResponse {
   token: string;
