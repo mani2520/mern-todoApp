@@ -13,7 +13,7 @@ const createTodo = async (req, res) => {
   try {
     const todo = new Todo({
       title: req.body.title,
-      user: req.user._id,
+      userId: req.user._id,
     });
     const saveTodo = await todo.save();
     res.status(201).json(saveTodo);

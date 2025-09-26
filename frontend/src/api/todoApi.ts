@@ -1,16 +1,14 @@
-import axios from "axios";
+import api from "./axios";
 
-const API_URL = import.meta.env.API_URL;
-
-export interface Todo {
+export interface TodoApi {
   _id: string;
   title: string;
   completed: boolean;
 }
 
-export const getTodos = async (): Promise<Todo[]> => {
+export const getTodos = async (): Promise<TodoApi[]> => {
   const token = localStorage.getItem("token");
-  const res = await axios.get(`${API_URL}`, {
+  const res = await api.get(`/`, {
     headers: { Authorization: `Bearer ${token}` },
   });
   return res.data;
@@ -18,16 +16,16 @@ export const getTodos = async (): Promise<Todo[]> => {
 
 export const addTodo = (title: string) => {
   const token = localStorage.getItem("token");
-  return axios.post<Todo>(
-    `${API_URL}`,
+  return api.post<TodoApi>(
+    `/`,
     { title },
     { headers: { Authorization: `Bearer ${token}` } }
   );
 };
 
-export const updateTodo = async (id: string, data: Partial<Todo>) => {
+export const updateTodo = async (id: string, data: Partial<TodoApi>) => {
   const token = localStorage.getItem("token");
-  const res = await axios.put(`${API_URL}/${id}`, data, {
+  const res = await api.put(`/${id}`, data, {
     headers: { Authorization: `Bearer ${token}` },
   });
   return res.data;
@@ -35,7 +33,7 @@ export const updateTodo = async (id: string, data: Partial<Todo>) => {
 
 export const deleteTodo = (id: string) => {
   const token = localStorage.getItem("token");
-  return axios.delete<Todo>(`${API_URL}/${id}`, {
+  return api.delete<TodoApi>(`/${id}`, {
     headers: { Authorization: `Bearer ${token}` },
   });
 };
