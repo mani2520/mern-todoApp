@@ -212,21 +212,23 @@ const Todo = () => {
           className="flex items-center gap-3 mt-4"
           autoComplete="off"
         >
-          <input
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="Add a new task..."
-            className="flex-1 px-4 py-2 border border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-300 transition"
-            aria-label="Add a new todo"
-          />
-          <button
-            type="submit"
-            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2 rounded-xl shadow transition disabled:opacity-50"
-            disabled={!title.trim()}
-          >
-            {loading ? "Adding..." : "Add"}
-          </button>
+          <div className="flex w-full gap-3">
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="Add a new task..."
+              className="flex-1 px-4 py-2 border border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-300 transition"
+              aria-label="Add a new todo"
+            />
+            <button
+              type="submit"
+              className="shrink-0 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2 rounded-xl shadow transition disabled:opacity-50"
+              disabled={!title.trim()}
+            >
+              {loading ? "Adding..." : "Add"}
+            </button>
+          </div>
         </form>
       </section>
     </main>
