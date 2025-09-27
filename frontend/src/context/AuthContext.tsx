@@ -5,6 +5,7 @@ interface AuthContextType {
   username: string | null;
   login: (tok: string, username: string) => void;
   logout: () => void;
+  verified: boolean;
 }
 
 export const AuthContext = createContext<AuthContextType>({
@@ -12,6 +13,7 @@ export const AuthContext = createContext<AuthContextType>({
   username: null,
   login: () => {},
   logout: () => {},
+  verified: false,
 });
 
 interface AuthProviderProps {
@@ -26,6 +28,8 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     localStorage.getItem("username")
   );
 
+  const [verified, setVerified] = useState(false);
+
   const login = (tok: string, username: string) => {
     setToken(tok);
     setUsername(username);
@@ -36,12 +40,13 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   const logout = () => {
     setToken(null);
     setUsername(null);
+    setVerified(false);
     localStorage.removeItem("token");
     localStorage.removeItem("username");
   };
 
   return (
-    <AuthContext.Provider value={{ token, username, login, logout }}>
+    <AuthContext.Provider value={{ token, username, login, logout, verified }}>
       {children}
     </AuthContext.Provider>
   );

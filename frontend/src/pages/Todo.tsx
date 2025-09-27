@@ -7,13 +7,17 @@ import { toast } from "react-toastify";
 import { useAuth } from "../context/AuthContext";
 
 const Todo = () => {
-  const { logout } = useAuth();
-
   const [todos, setTodos] = useState<TodoApi[]>([]);
   const [title, setTitle] = useState("");
   const [searchTodo, setSearchTodo] = useState("");
   const [loading, setLoading] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+
+  const [filter, setFilter] = useState<"all" | "completed" | "incomplete">(
+    "all"
+  );
+
+  const { logout, verified } = useAuth();
 
   const { username: contextUsername } = useAuth();
 
@@ -98,6 +102,12 @@ const Todo = () => {
     return (todo.title || "").toLowerCase().includes(searchTodo.toLowerCase());
   });
 
+  const filteredTodos = searchTodos.filter((todo) => {
+    if (filter === "completed") return todo.completed;
+    if (filter === "incomplete") return !todo.completed;
+    return true;
+  });
+
   return (
     <main className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center p-4">
       <section className="w-full max-w-lg bg-white rounded-3xl shadow-xl p-8">
@@ -115,18 +125,60 @@ const Todo = () => {
           <div className="relative">
             <button
               onClick={() => setDropdownOpen(!dropdownOpen)}
-              className="focus:outline-none"
+              className="focus:outline-none group relative"
               aria-label="User menu"
             >
-              <span className=" w-12 h-12 rounded-full bg-gradient-to-br from-blue-200 to-blue-400 border-2 border-blue-300 shadow hover:shadow-lg transition-all flex items-center justify-center">
+              <span className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-200 to-blue-400 border-2 border-blue-300 shadow hover:shadow-lg transition-all flex items-center justify-center relative">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="currentColor"
                   viewBox="0 0 24 24"
                   className="w-8 h-8 text-blue-700"
+                  aria-hidden="true"
                 >
                   <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z" />
                 </svg>
+                <span
+                  className={`absolute -bottom-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold border-2 border-white ${
+                    verified
+                      ? "bg-green-400 text-white"
+                      : "bg-yellow-400 text-gray-800 animate-pulse"
+                  }`}
+                  title={verified ? "Verified" : "Not Verified"}
+                >
+                  {verified ? (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="w-3 h-3"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={3}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                  ) : (
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="w-3 h-3"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={3}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M12 8v4m0 4h.01"
+                      />
+                      <circle cx="12" cy="12" r="10" />
+                    </svg>
+                  )}
+                </span>
               </span>
             </button>
             {dropdownOpen && (
@@ -144,7 +196,7 @@ const Todo = () => {
                     {formattedUsername}
                   </span>
                 </li>
-                <li className="px-5 py-3 hover:bg-blue-50 text-gray-700 font-medium cursor-pointer rounded-t-xl transition">
+                <li className="px-5 py-3 hover:bg-blue-50 text-gray-700 font-medium cursor-pointer  transition">
                   <span className="flex items-center gap-2">
                     <svg
                       className="w-4 h-4 text-blue-400"
@@ -155,7 +207,7 @@ const Todo = () => {
                     >
                       <path d="M12 4v16m8-8H4" />
                     </svg>
-                    Settings
+                    Profile
                   </span>
                 </li>
                 <li
@@ -191,11 +243,50 @@ const Todo = () => {
           />
         </div>
 
+        <div className="flex gap-3 mb-4">
+          <button
+            type="button"
+            onClick={() => setFilter("all")}
+            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              filter === "all"
+                ? "bg-blue-600 text-white"
+                : "bg-gray-100 text-gray-700 hover:bg-blue-50"
+            }`}
+            aria-pressed={filter === "all"}
+          >
+            All
+          </button>
+          <button
+            type="button"
+            onClick={() => setFilter("completed")}
+            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              filter === "completed"
+                ? "bg-blue-600 text-white"
+                : "bg-gray-100 text-gray-700 hover:bg-blue-50"
+            }`}
+            aria-pressed={filter === "completed"}
+          >
+            Completed
+          </button>
+          <button
+            type="button"
+            onClick={() => setFilter("incomplete")}
+            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+              filter === "incomplete"
+                ? "bg-blue-600 text-white"
+                : "bg-gray-100 text-gray-700 hover:bg-blue-50"
+            }`}
+            aria-pressed={filter === "incomplete"}
+          >
+            Incomplete
+          </button>
+        </div>
+
         <ul className="space-y-3 h-[400px] overflow-y-auto pr-3 my-thin-scrollbar">
-          {searchTodos.length === 0 ? (
+          {filteredTodos.length === 0 ? (
             <li className="text-center text-gray-400 py-8">No todos found!</li>
           ) : (
-            searchTodos.map((todo) => (
+            filteredTodos.map((todo) => (
               <TodoItem
                 key={todo._id}
                 todo={todo}

@@ -6,6 +6,8 @@ import Todo from "./pages/Todo";
 
 import { ToastContainer } from "react-toastify";
 import ProtectedRoute from "./components/ProtectedRoute";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 
 const App = () => {
   return (
@@ -21,7 +23,10 @@ const App = () => {
             </ProtectedRoute>
           }
         />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
+        <Route path="/reset-password" element={<ResetPassword />} />
       </Routes>
+
       <ToastContainer position="top-center" autoClose={4000} />
     </>
   );

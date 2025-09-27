@@ -38,11 +38,11 @@ const TodoItem = ({ todo, onToggle, onDelete, onEdit }: Props) => {
   }, [todo.title]);
 
   return (
-    <li className="flex items-start gap-3 bg-white dark:bg-gray-50 p-4 rounded-2xl shadow group hover:shadow-lg transition-all w-full">
+    <li className="flex items-center gap-3 bg-white dark:bg-gray-50 p-3 rounded-2xl shadow group hover:shadow-lg transition-all w-full">
       <button
         onClick={() => onToggle(todo._id, todo.completed)}
         aria-label={todo.completed ? "Mark as incomplete" : "Mark as complete"}
-        className={`flex-shrink-0 w-7 h-7 rounded-full border-2 flex items-center justify-center transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-300 disabled:opacity-50
+        className={`flex-shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-300 disabled:opacity-50
           ${
             todo.completed
               ? "bg-blue-600 border-blue-600"
