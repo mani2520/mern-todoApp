@@ -12,6 +12,8 @@ const validateEmail = require("../utils/validateEmail");
 
 const setOtp = require("../utils/setOtp");
 
+const TodoModel = require("../models/Todo");
+
 router.post("/register", async (req, res) => {
   try {
     const { username, email, password } = req.body;
@@ -94,7 +96,7 @@ router.post(`/login`, async (req, res) => {
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
       expiresIn: "1d",
     });
-    res.json({ token, username: user.username });
+    res.json({ token, username: user.username, verified: !!user.verified });
   } catch (error) {
     res.status(500).json({ message: "Server Error" });
   }
@@ -112,9 +114,31 @@ router.post("/logout", authMiddleware, async (req, res) => {
   res.json({ message: "Loged out successfully" });
 });
 
+router.post("/send-password-change-otp", authMiddleware, async (req, res) => {
+  try {
+    const user = req.user;
+
+    const otp = setOtp(user, "reset");
+    await user.save();
+
+    const message = `
+    Hello ${user.username},
+
+      Your password change OTP is ${otp}.
+      It is valid for 10 minutes.
+
+      Do not share it with anyone.
+    `;
+    await sendEmail(user.email, "Password change OTP", message);
+    res.json({ message: "Password change OTP sent to your email" });
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
 router.post("/change-password", authMiddleware, async (req, res) => {
   try {
-    const { oldPassword, newPassword } = req.body;
+    const { oldPassword, newPassword, otp } = req.body;
 
     if (!oldPassword || !newPassword) {
       return res
@@ -125,13 +149,22 @@ router.post("/change-password", authMiddleware, async (req, res) => {
     const user = await User.findById(req.user._id);
     if (!user) return res.status(401).json({ message: "User not found" });
 
-    const isMatch = await bcrypt.compare(oldPassword, req.user.password);
+    const isMatch = await bcrypt.compare(oldPassword, user.password);
     if (!isMatch)
       return res.status(400).json({ message: "old password is incorrect" });
 
+    if (
+      !user.resetOTP ||
+      user.resetOTP !== otp ||
+      user.resetOTPExpire < Date.now()
+    ) {
+      return res.status(400).json({ message: "Invalid or Expired OTP" });
+    }
+
     const hashed = await bcrypt.hash(newPassword, 10);
-    req.user.password = hashed;
-    await req.user.save();
+    user.password = hashed;
+    (user.resetOTP = undefined), (user.resetOTPExpire = undefined);
+    await user.save();
 
     res.json({ message: "Password updated successfully" });
   } catch (error) {
@@ -217,15 +250,15 @@ router.post("/resend-otp", async (req, res) => {
   }
 });
 
-router.post("/update-email", async (req, res) => {
+router.post("/update-email", authMiddleware, async (req, res) => {
   try {
-    const { oldEmail, newEmail } = req.body;
+    const user = req.user;
+    const newEmail = req.body.newEmail;
+    if (!newEmail)
+      return res.status(400).json({ message: "newEmail required" });
 
     const { valid, message } = validateEmail(newEmail);
     if (!valid) return res.status(400).json({ message });
-
-    const user = await User.findOne({ email: oldEmail });
-    if (!user) return res.status(400).json({ message: "User not found" });
 
     user.email = newEmail;
     user.verified = false;
@@ -245,6 +278,65 @@ router.post("/update-email", async (req, res) => {
     res.json({ message: "Email updated. Please verify new Email" });
   } catch (error) {
     res.status(500).json({ message: "server error", error: error.message });
+  }
+});
+
+router.post("/update-name", authMiddleware, async (req, res) => {
+  try {
+    const { name } = req.body;
+
+    if (!name) return res.status(400).json({ message: "Name Required" });
+
+    const user = await User.findById(req.user._id);
+    if (!user) return res.status(401).json({ message: "User not found" });
+
+    user.username = name;
+    await user.save();
+
+    res.json({ message: "Name updated", username: user.username });
+  } catch (error) {
+    res.status(500).json({ message: "server error" });
+  }
+});
+
+router.post("/delete-otp", authMiddleware, async (req, res) => {
+  try {
+    const user = req.user;
+
+    const otp = setOtp(user, "delete");
+    await user.save();
+
+    const body = `Hello ${user.username}, Your account delete OTP is ${otp}. Valid for 10 minutes.`;
+    await sendEmail(user.email, "Confirm account deletion", body);
+
+    res.json({ message: "OTP sent to your email" });
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+});
+
+router.post("/delete-account", authMiddleware, async (req, res) => {
+  try {
+    const { otp } = req.body;
+    if (!otp) return res.status(400).json({ message: "OTP required" });
+
+    const user = await User.findById(req.user._id);
+    if (!user) return res.status(401).json({ message: "User not found" });
+
+    if (
+      !user.deleteOTP ||
+      user.deleteOTP !== otp ||
+      user.deleteOTPExpire < Date.now()
+    ) {
+      return res.status(400).json({ message: "Invalid or Expired OTP" });
+    }
+
+    await TodoModel.deleteMany({ userId: user._id });
+    await User.deleteOne({ _id: user._id });
+
+    res.json({ message: "Account deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
   }
 });
 

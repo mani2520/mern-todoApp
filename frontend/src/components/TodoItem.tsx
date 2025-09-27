@@ -42,7 +42,7 @@ const TodoItem = ({ todo, onToggle, onDelete, onEdit }: Props) => {
       <button
         onClick={() => onToggle(todo._id, todo.completed)}
         aria-label={todo.completed ? "Mark as incomplete" : "Mark as complete"}
-        className={`flex-shrink-0 w-7 h-7 rounded-full border-2 flex items-center justify-center transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-300
+        className={`flex-shrink-0 w-7 h-7 rounded-full border-2 flex items-center justify-center transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-300 disabled:opacity-50
           ${
             todo.completed
               ? "bg-blue-600 border-blue-600"
