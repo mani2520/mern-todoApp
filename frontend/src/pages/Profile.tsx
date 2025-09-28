@@ -1,10 +1,53 @@
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { useState } from "react";
+import api from "../api/axios";
+import { toast } from "react-toastify";
 
 const Profile = () => {
-  const { username, email, verified, logout } = useAuth();
+  const { username, email, verified, logout, token } = useAuth();
 
-  console.log(username, email);
+  const [editField, setEditField] = useState<"username" | "email" | null>(null);
+
+  const [value, setValue] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleEdit = (field: "username" | "email") => {
+    setEditField(field);
+    setValue(field === "username" ? username || "" : email || "");
+  };
+
+  const handleCancel = () => {
+    setEditField(null);
+    setValue("");
+  };
+
+  const handleSave = async () => {
+    try {
+      setLoading(true);
+      if (editField === "username") {
+        await api.post(
+          "/auth/update-name",
+          { name: value },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        toast.success("Username updated successfully");
+      } else if (editField === "email") {
+        await api.post(
+          "/auth/update-email",
+          { newEmail: value },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        toast.success("Email updated successfully");
+      }
+      setEditField(null);
+      window.location.reload();
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Update failed");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
@@ -18,38 +61,104 @@ const Profile = () => {
             Back
           </Link>
         </div>
-        <div className="space-y-6">
+        <div className="space-y-8">
           <div>
-            <label className="block text-gray-600 font-medium mb-1">
+            <label className="block text-gray-600 font-medium mb-2">
               Username
             </label>
-            <div className="flex items-center gap-2">
-              <span className="text-gray-800">{username}</span>
-              <button
-                className="text-blue-600 hover:underline text-sm px-2 py-1 rounded transition-colors"
-                type="button"
-                disabled
-              >
-                Change
-              </button>
-            </div>
+            {editField === "username" ? (
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  value={value}
+                  onChange={(e) => setValue(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  autoFocus
+                />
+                <button
+                  className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 transition-colors font-medium"
+                  type="button"
+                  onClick={handleSave}
+                  disabled={loading || !value.trim()}
+                >
+                  {loading ? (
+                    <span className="animate-spin inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full align-middle"></span>
+                  ) : (
+                    "Save"
+                  )}
+                </button>
+                <button
+                  className="bg-gray-200 text-gray-700 px-3 py-1 rounded hover:bg-gray-300 transition-colors font-medium"
+                  type="button"
+                  onClick={handleCancel}
+                  disabled={loading}
+                >
+                  Cancel
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <span className="text-gray-800">{username}</span>
+                <button
+                  className="text-blue-600 hover:underline text-sm px-2 py-1 rounded transition-colors"
+                  type="button"
+                  onClick={() => handleEdit("username")}
+                >
+                  Change
+                </button>
+              </div>
+            )}
           </div>
+
           <div>
-            <label className="block text-gray-600 font-medium mb-1">
+            <label className="block text-gray-600 font-medium mb-2">
               Email
             </label>
-            <div className="flex items-center gap-2">
-              <span className="text-gray-800">{email}</span>
-              <button
-                className="text-blue-600 hover:underline text-sm px-2 py-1 rounded transition-colors"
-                type="button"
-                disabled
-              >
-                Change
-              </button>
-            </div>
+            {editField === "email" ? (
+              <div className="flex items-center gap-2">
+                <input
+                  type="email"
+                  value={value}
+                  onChange={(e) => setValue(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  autoFocus
+                />
+                <button
+                  className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 transition-colors font-medium"
+                  type="button"
+                  onClick={handleSave}
+                  disabled={loading || !value.trim()}
+                >
+                  {loading ? (
+                    <span className="animate-spin inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full align-middle"></span>
+                  ) : (
+                    "Save"
+                  )}
+                </button>
+                <button
+                  className="bg-gray-200 text-gray-700 px-3 py-1 rounded hover:bg-gray-300 transition-colors font-medium"
+                  type="button"
+                  onClick={handleCancel}
+                  disabled={loading}
+                >
+                  Cancel
+                </button>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2">
+                <span className="text-gray-800">{email}</span>
+                <button
+                  className="text-blue-600 hover:underline text-sm px-2 py-1 rounded transition-colors"
+                  type="button"
+                  onClick={() => handleEdit("email")}
+                >
+                  Change
+                </button>
+              </div>
+            )}
           </div>
-          <div>
+
+          <div className="flex items-center gap-2">
             <label className="block text-gray-600 font-medium mb-1">
               Verified
             </label>
@@ -63,7 +172,8 @@ const Profile = () => {
               {verified ? "Verified" : "Not Verified"}
             </span>
           </div>
-          <div className="flex flex-col gap-2 mt-6">
+
+          <div className="flex flex-col gap-2 mt-8">
             <button
               className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition-colors font-semibold"
               type="button"
