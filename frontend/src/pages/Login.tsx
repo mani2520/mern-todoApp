@@ -8,6 +8,7 @@ import { toast } from "react-toastify";
 interface LoginResponse {
   token: string;
   username: string;
+  email: string;
 }
 
 const Login = () => {
@@ -38,7 +39,7 @@ const Login = () => {
         password,
       });
 
-      login(res.data.token, res.data.username);
+      login(res.data.token, res.data.username, res.data.email);
       toast.success("Login success");
       navigate("/", { replace: true });
     } catch (error: any) {

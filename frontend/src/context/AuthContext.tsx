@@ -3,7 +3,8 @@ import { type ReactNode, createContext, useState, useContext } from "react";
 interface AuthContextType {
   token: string | null;
   username: string | null;
-  login: (tok: string, username: string) => void;
+  email: string | null;
+  login: (tok: string, username: string, email: string) => void;
   logout: () => void;
   verified: boolean;
 }
@@ -11,6 +12,7 @@ interface AuthContextType {
 export const AuthContext = createContext<AuthContextType>({
   token: null,
   username: null,
+  email: null,
   login: () => {},
   logout: () => {},
   verified: false,
@@ -28,25 +30,35 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     localStorage.getItem("username")
   );
 
+  const [email, setEmail] = useState<string | null>(
+    localStorage.getItem("email")
+  );
+
   const [verified, setVerified] = useState(false);
 
-  const login = (tok: string, username: string) => {
+  const login = (tok: string, username: string, email: string) => {
     setToken(tok);
     setUsername(username);
+    setEmail(email);
     localStorage.setItem("token", tok);
     localStorage.setItem("username", username);
+    localStorage.setItem("email", email);
   };
 
   const logout = () => {
     setToken(null);
     setUsername(null);
+    setEmail(null);
     setVerified(false);
     localStorage.removeItem("token");
     localStorage.removeItem("username");
+    localStorage.removeItem("email");
   };
 
   return (
-    <AuthContext.Provider value={{ token, username, login, logout, verified }}>
+    <AuthContext.Provider
+      value={{ token, username, login, logout, verified, email }}
+    >
       {children}
     </AuthContext.Provider>
   );

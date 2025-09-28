@@ -7,6 +7,7 @@ import { toast } from "react-toastify";
 interface RegisterResponse {
   token: string;
   username: string;
+  email: string;
 }
 
 const Register = () => {
@@ -34,7 +35,7 @@ const Register = () => {
         email,
         password,
       });
-      login(res.data.token, res.data.username);
+      login(res.data.token, res.data.username, res.data.email);
       toast.success("Account created!");
       navigate("/login");
     } catch (error: any) {
