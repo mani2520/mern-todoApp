@@ -5,6 +5,7 @@ import TodoItem from "../components/TodoItem";
 import { toast } from "react-toastify";
 
 import { useAuth } from "../context/AuthContext";
+import { Link } from "react-router-dom";
 
 const Todo = () => {
   const [todos, setTodos] = useState<TodoApi[]>([]);
@@ -196,19 +197,20 @@ const Todo = () => {
                     {formattedUsername}
                   </span>
                 </li>
-                <li className="px-5 py-3 hover:bg-blue-50 text-gray-700 font-medium cursor-pointer  transition">
-                  <span className="flex items-center gap-2">
+                <li className="px-5 py-3 hover:bg-blue-50 text-gray-700 font-medium cursor-pointer transition">
+                  <Link to="/profile" className="flex items-center gap-2">
                     <svg
                       className="w-4 h-4 text-blue-400"
                       fill="none"
                       stroke="currentColor"
                       strokeWidth="2"
                       viewBox="0 0 24 24"
+                      aria-hidden="true"
                     >
                       <path d="M12 4v16m8-8H4" />
                     </svg>
                     Profile
-                  </span>
+                  </Link>
                 </li>
                 <li
                   onClick={() => {

@@ -38,6 +38,7 @@ const Register = () => {
       toast.success("Account created!");
       navigate("/login");
     } catch (error: any) {
+      console.log(error);
       toast.error(error.response?.data?.message || "Server Error");
       setError(error.response?.data?.message);
     }
