@@ -269,7 +269,7 @@ router.post("/update-email", authMiddleware, async (req, res) => {
     const { valid, message } = validateEmail(newEmail);
     if (!valid) return res.status(400).json({ message });
 
-    const existUser = await User.findOne({ email });
+    const existUser = await User.findOne({ email: newEmail });
     if (existUser) {
       return res.status(400).json({ message: "Email already registered" });
     }
@@ -304,8 +304,8 @@ router.post("/update-name", authMiddleware, async (req, res) => {
     const user = await User.findById(req.user._id);
     if (!user) return res.status(401).json({ message: "User not found" });
 
-    const existName = await User.findOne({ username });
-    if (existName)
+    const existName = await User.findOne({ username: name });
+    if (existName && existName._id.toString() !== user._id.toString())
       return res.status(400).json({ message: "User name already taken" });
 
     user.username = name;
