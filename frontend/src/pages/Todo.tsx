@@ -5,7 +5,7 @@ import TodoItem from "../components/TodoItem";
 import { toast } from "react-toastify";
 
 import { useAuth } from "../context/AuthContext";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const Todo = () => {
   const [todos, setTodos] = useState<TodoApi[]>([]);
@@ -23,6 +23,8 @@ const Todo = () => {
   const { username: contextUsername } = useAuth();
 
   const [username, setUsername] = useState<string | null>(null);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (contextUsername) setUsername(contextUsername);
@@ -197,7 +199,7 @@ const Todo = () => {
                     {formattedUsername}
                   </span>
                 </li>
-                <li className="px-5 py-3 hover:bg-blue-50 text-gray-700 font-medium cursor-pointer transition">
+                <button className="w-full px-5 py-3 hover:bg-blue-50 text-gray-700 font-medium cursor-pointer transition">
                   <Link to="/profile" className="flex items-center gap-2">
                     <svg
                       className="w-4 h-4 text-blue-400"
@@ -211,12 +213,12 @@ const Todo = () => {
                     </svg>
                     Profile
                   </Link>
-                </li>
-                <li
+                </button>
+                <button
                   onClick={() => {
                     logout(), toast.success("Logged out successfully!");
                   }}
-                  className="px-5 py-3 hover:bg-red-50 text-red-500 font-semibold cursor-pointer rounded-b-xl transition flex items-center gap-2"
+                  className="w-full px-5 py-3 hover:bg-red-50 text-red-500 font-semibold cursor-pointer rounded-b-xl transition flex items-center gap-2"
                 >
                   <svg
                     className="w-4 h-4 text-red-400"
@@ -228,7 +230,7 @@ const Todo = () => {
                     <path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H7a2 2 0 01-2-2V7a2 2 0 012-2h4a2 2 0 012 2v1" />
                   </svg>
                   Logout
-                </li>
+                </button>
               </ul>
             )}
           </div>

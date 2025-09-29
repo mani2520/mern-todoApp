@@ -12,6 +12,7 @@ const userSchema = new mongoose.Schema(
     resetOTPExpire: Date,
     deleteOTP: String,
     deleteOTPExpire: Date,
+    pendingEmail: { type: String },
   },
   { timestamps: true }
 );

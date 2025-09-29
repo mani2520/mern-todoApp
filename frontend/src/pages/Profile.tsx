@@ -5,7 +5,7 @@ import api from "../api/axios";
 import { toast } from "react-toastify";
 
 const Profile = () => {
-  const { username, email, verified, logout, token } = useAuth();
+  const { username, email, verified, logout, token, updateUser } = useAuth();
 
   const [editField, setEditField] = useState<"username" | "email" | null>(null);
 
@@ -27,21 +27,22 @@ const Profile = () => {
       setLoading(true);
       if (editField === "username") {
         await api.post(
-          "/auth/update-name",
+          "/update-name",
           { name: value },
           { headers: { Authorization: `Bearer ${token}` } }
         );
         toast.success("Username updated successfully");
+        updateUser(value, email || "");
       } else if (editField === "email") {
         await api.post(
-          "/auth/update-email",
+          "/update-email",
           { newEmail: value },
           { headers: { Authorization: `Bearer ${token}` } }
         );
         toast.success("Email updated successfully");
+        updateUser(username || "", value);
       }
       setEditField(null);
-      window.location.reload();
     } catch (error: any) {
       toast.error(error.response?.data?.message || "Update failed");
     } finally {
@@ -177,7 +178,9 @@ const Profile = () => {
             <button
               className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition-colors font-semibold"
               type="button"
-              onClick={logout}
+              onClick={() => {
+                logout(), toast.success("Logged out successfully!");
+              }}
             >
               Logout
             </button>

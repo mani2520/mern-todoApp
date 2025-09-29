@@ -279,8 +279,9 @@ router.post("/update-email", authMiddleware, async (req, res) => {
       return res.status(400).json({ message: "Email already registered" });
     }
 
-    user.email = newEmail;
-    user.verified = false;
+    user.pendingEmail = newEmail;
+    user.emailOTP = undefined;
+    user.emailOTPExpire = undefined;
 
     const otp = setOtp(user, "email");
     await user.save();
@@ -295,6 +296,35 @@ router.post("/update-email", authMiddleware, async (req, res) => {
 
     await sendEmail(newEmail, "Verify your new email", emailBodyContent);
     res.json({ message: "Email updated. Please verify new Email" });
+  } catch (error) {
+    res.status(500).json({ message: "server error", error: error.message });
+  }
+});
+
+router.post("/verify-new-email", authMiddleware, async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+    if (!user) return res.status(401).json({ message: "User not fount" });
+
+    const { otp } = req.body;
+    if (!otp) return res.status(400).json({ message: "OTP Required" });
+
+    if (
+      !user.emailOTP ||
+      user.emailOTP !== otp ||
+      user.emailOTPExpire < Date.now()
+    ) {
+      return res.status(400).json({ message: "Invalid or Expired OTP" });
+    }
+
+    user.email = user.pendingEmail;
+    user.pendingEmail = undefined;
+    user.verified = true;
+    user.emailOTP = undefined;
+    user.emailOTPExpire = undefined;
+
+    await user.save();
+    res.json({ message: "Email updated successfully", email: user.email });
   } catch (error) {
     res.status(500).json({ message: "server error", error: error.message });
   }

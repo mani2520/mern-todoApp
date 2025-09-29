@@ -1,4 +1,5 @@
 import { type ReactNode, createContext, useState, useContext } from "react";
+import { useNavigate } from "react-router-dom";
 
 interface AuthContextType {
   token: string | null;
@@ -7,6 +8,7 @@ interface AuthContextType {
   login: (tok: string, username: string, email: string) => void;
   logout: () => void;
   verified: boolean;
+  updateUser: (username: string, email: string) => void;
 }
 
 export const AuthContext = createContext<AuthContextType>({
@@ -16,6 +18,7 @@ export const AuthContext = createContext<AuthContextType>({
   login: () => {},
   logout: () => {},
   verified: false,
+  updateUser: () => {},
 });
 
 interface AuthProviderProps {
@@ -55,9 +58,16 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     localStorage.removeItem("email");
   };
 
+  const updateUser = (newUsername: string, newEmail: string) => {
+    setUsername(newUsername);
+    setEmail(newEmail);
+    localStorage.setItem("username", newUsername);
+    localStorage.setItem("email", newEmail);
+  };
+
   return (
     <AuthContext.Provider
-      value={{ token, username, login, logout, verified, email }}
+      value={{ token, username, login, logout, verified, email, updateUser }}
     >
       {children}
     </AuthContext.Provider>
