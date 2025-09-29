@@ -5,7 +5,7 @@ import TodoItem from "../components/TodoItem";
 import { toast } from "react-toastify";
 
 import { useAuth } from "../context/AuthContext";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 
 const Todo = () => {
   const [todos, setTodos] = useState<TodoApi[]>([]);
@@ -23,8 +23,6 @@ const Todo = () => {
   const { username: contextUsername } = useAuth();
 
   const [username, setUsername] = useState<string | null>(null);
-
-  const navigate = useNavigate();
 
   useEffect(() => {
     if (contextUsername) setUsername(contextUsername);
@@ -112,37 +110,37 @@ const Todo = () => {
   });
 
   return (
-    <main className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center p-4">
-      <section className="w-full max-w-lg bg-white rounded-3xl shadow-xl p-8">
-        <header className="mb-8 flex items-center justify-between">
-          <div className="flex-1">
-            <h1 className="text-4xl font-extrabold text-blue-700 tracking-tight mb-1 text-left drop-shadow-sm">
+    <main className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center p-2 sm:p-4">
+      <section className="w-full max-w-lg bg-white rounded-2xl sm:rounded-3xl shadow-xl p-3 sm:p-8 flex flex-col">
+        <header className="mb-6 sm:mb-8 flex flex-row items-center justify-between gap-4">
+          <div className="flex-1 w-full">
+            <h1 className="text-2xl sm:text-4xl font-extrabold text-blue-700 tracking-tight mb-1 text-left drop-shadow-sm">
               <span className="bg-gradient-to-r from-blue-600 via-blue-400 to-blue-600 bg-clip-text text-transparent">
                 Todo App
               </span>
             </h1>
-            <p className="text-gray-400 text-sm font-medium pl-1">
+            <p className="text-gray-400 text-xs sm:text-sm font-medium pl-0 sm:pl-1">
               Stay organized, stay productive
             </p>
           </div>
-          <div className="relative">
+          <div className="relative self-end sm:self-auto">
             <button
               onClick={() => setDropdownOpen(!dropdownOpen)}
               className="focus:outline-none group relative"
               aria-label="User menu"
             >
-              <span className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-200 to-blue-400 border-2 border-blue-300 shadow hover:shadow-lg transition-all flex items-center justify-center relative">
+              <span className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-blue-200 to-blue-400 border-2 border-blue-300 shadow hover:shadow-lg transition-all flex items-center justify-center relative">
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   fill="currentColor"
                   viewBox="0 0 24 24"
-                  className="w-8 h-8 text-blue-700"
+                  className="w-6 h-6 sm:w-8 sm:h-8 text-blue-700"
                   aria-hidden="true"
                 >
                   <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z" />
                 </svg>
                 <span
-                  className={`absolute -bottom-1 -right-1 w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold border-2 border-white ${
+                  className={`absolute -bottom-1 -right-1 w-4 h-4 sm:w-5 sm:h-5 rounded-full flex items-center justify-center text-xs font-bold border-2 border-white ${
                     verified
                       ? "bg-green-400 text-white"
                       : "bg-yellow-400 text-gray-800 animate-pulse"
@@ -152,7 +150,7 @@ const Todo = () => {
                   {verified ? (
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
-                      className="w-3 h-3"
+                      className="w-2.5 h-2.5 sm:w-3 sm:h-3"
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
@@ -167,7 +165,7 @@ const Todo = () => {
                   ) : (
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
-                      className="w-3 h-3"
+                      className="w-2.5 h-2.5 sm:w-3 sm:h-3"
                       fill="none"
                       viewBox="0 0 24 24"
                       stroke="currentColor"
@@ -185,21 +183,21 @@ const Todo = () => {
               </span>
             </button>
             {dropdownOpen && (
-              <ul className="absolute right-0 mt-2 w-40 bg-white rounded-xl shadow-lg border border-gray-100 z-20 animate-fade-in">
-                <li className="px-5 py-3 bg-blue-50 text-gray-700 font-medium rounded-t-xl transition">
+              <ul className="absolute right-0 mt-2 w-36 sm:w-40 bg-white rounded-xl shadow-lg border border-gray-100 z-20 animate-fade-in">
+                <li className="px-4 py-2.5 sm:px-5 sm:py-3 bg-blue-50 text-gray-700 font-medium rounded-t-xl transition">
                   <span className="flex items-center gap-2">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       fill="currentColor"
                       viewBox="0 0 24 24"
-                      className="w-8 h-8 text-blue-700"
+                      className="w-6 h-6 sm:w-8 sm:h-8 text-blue-700"
                     >
                       <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z" />
                     </svg>
                     {formattedUsername}
                   </span>
                 </li>
-                <button className="w-full px-5 py-3 hover:bg-blue-50 text-gray-700 font-medium cursor-pointer transition">
+                <button className="w-full px-4 py-2.5 sm:px-5 sm:py-3 hover:bg-blue-50 text-gray-700 font-medium cursor-pointer transition">
                   <Link to="/profile" className="flex items-center gap-2">
                     <svg
                       className="w-4 h-4 text-blue-400"
@@ -218,7 +216,7 @@ const Todo = () => {
                   onClick={() => {
                     logout(), toast.success("Logged out successfully!");
                   }}
-                  className="w-full px-5 py-3 hover:bg-red-50 text-red-500 font-semibold cursor-pointer rounded-b-xl transition flex items-center gap-2"
+                  className="w-full px-4 py-2.5 sm:px-5 sm:py-3 hover:bg-red-50 text-red-500 font-semibold cursor-pointer rounded-b-xl transition flex items-center gap-2"
                 >
                   <svg
                     className="w-4 h-4 text-red-400"
@@ -236,22 +234,22 @@ const Todo = () => {
           </div>
         </header>
 
-        <div className="mb-4">
+        <div className="mb-3 sm:mb-4">
           <input
             type="text"
             value={searchTodo}
             onChange={(e) => setSearchTodo(e.target.value)}
             placeholder="Search Task"
-            className="flex-1 w-full px-4 py-2 border border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-300 transition"
+            className="flex-1 w-full px-3 py-2 sm:px-4 sm:py-2 border border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-300 transition text-sm sm:text-base"
             aria-label="Add a new todo"
           />
         </div>
 
-        <div className="flex gap-3 mb-4">
+        <div className="flex flex-wrap gap-2 sm:gap-3 mb-3 sm:mb-4">
           <button
             type="button"
             onClick={() => setFilter("all")}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+            className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg font-medium transition-colors text-sm sm:text-base ${
               filter === "all"
                 ? "bg-blue-600 text-white"
                 : "bg-gray-100 text-gray-700 hover:bg-blue-50"
@@ -263,7 +261,7 @@ const Todo = () => {
           <button
             type="button"
             onClick={() => setFilter("completed")}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+            className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg font-medium transition-colors text-sm sm:text-base ${
               filter === "completed"
                 ? "bg-blue-600 text-white"
                 : "bg-gray-100 text-gray-700 hover:bg-blue-50"
@@ -275,7 +273,7 @@ const Todo = () => {
           <button
             type="button"
             onClick={() => setFilter("incomplete")}
-            className={`px-4 py-2 rounded-lg font-medium transition-colors ${
+            className={`px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg font-medium transition-colors text-sm sm:text-base ${
               filter === "incomplete"
                 ? "bg-blue-600 text-white"
                 : "bg-gray-100 text-gray-700 hover:bg-blue-50"
@@ -286,9 +284,11 @@ const Todo = () => {
           </button>
         </div>
 
-        <ul className="space-y-3 h-[400px] overflow-y-auto pr-3 my-thin-scrollbar">
+        <ul className="space-y-2 sm:space-y-3 h-[320px] sm:h-[400px] overflow-y-auto pr-1 sm:pr-3 my-thin-scrollbar">
           {filteredTodos.length === 0 ? (
-            <li className="text-center text-gray-400 py-8">No todos found!</li>
+            <li className="text-center text-gray-400 py-6 sm:py-8 text-sm sm:text-base">
+              No todos found!
+            </li>
           ) : (
             filteredTodos.map((todo) => (
               <TodoItem
@@ -304,21 +304,21 @@ const Todo = () => {
 
         <form
           onSubmit={handleAdd}
-          className="flex items-center gap-3 mt-4"
+          className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 mt-3 sm:mt-4"
           autoComplete="off"
         >
-          <div className="flex w-full gap-3">
+          <div className="flex w-full flex-col sm:flex-row gap-2 sm:gap-3">
             <input
               type="text"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Add a new task..."
-              className="flex-1 px-4 py-2 border border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-300 transition"
+              className="flex-1 px-3 py-2 sm:px-4 sm:py-2 border border-gray-200 rounded-xl bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-300 transition text-sm sm:text-base"
               aria-label="Add a new todo"
             />
             <button
               type="submit"
-              className="shrink-0 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-5 py-2 rounded-xl shadow transition disabled:opacity-50"
+              className="shrink-0 bg-blue-600 hover:bg-blue-700 text-white font-semibold px-4 py-2 sm:px-5 sm:py-2 rounded-xl shadow transition disabled:opacity-50 text-sm sm:text-base"
               disabled={!title.trim()}
             >
               {loading ? "Adding..." : "Add"}

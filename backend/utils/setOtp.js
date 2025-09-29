@@ -8,6 +8,8 @@ function setOtp(user, type = "email") {
     (user.emailOTP = otp), (user.emailOTPExpire = expire);
   } else if (type === "reset") {
     (user.resetOTP = otp), (user.resetOTPExpire = expire);
+  } else if (type === "delete") {
+    (user.deleteOTP = otp), (user.deleteOTPExpire = expire);
   }
 
   return otp;

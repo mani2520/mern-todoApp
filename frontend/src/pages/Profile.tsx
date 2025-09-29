@@ -3,48 +3,67 @@ import { useAuth } from "../context/AuthContext";
 import { useState } from "react";
 import api from "../api/axios";
 import { toast } from "react-toastify";
+import OTPModel from "../components/OTPModel";
 
 const Profile = () => {
   const { username, email, verified, logout, token, updateUser } = useAuth();
 
   const [editField, setEditField] = useState<"username" | "email" | null>(null);
 
-  const [value, setValue] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const [usernameValue, setUsernameValue] = useState(username || "");
+  const [emailValue, setEmailValue] = useState(email || "");
+
+  const [showOtpModal, setShowOtpModal] = useState(false);
 
   const handleEdit = (field: "username" | "email") => {
     setEditField(field);
-    setValue(field === "username" ? username || "" : email || "");
+    if (field === "username") {
+      setUsernameValue(username || "");
+    } else if (field === "email") {
+      setEmailValue(email || "");
+    }
   };
 
   const handleCancel = () => {
     setEditField(null);
-    setValue("");
+    setUsernameValue(username || "");
+    setEmailValue(email || "");
   };
 
   const handleSave = async () => {
+    console.log("HandleSave called, editField =", editField);
+    if (!editField) return;
+    setLoading(true);
     try {
-      setLoading(true);
-      if (editField === "username") {
-        await api.post(
+      if (editField === "username" && usernameValue.trim()) {
+        const res = await api.post(
           "/update-name",
-          { name: value },
+          { name: usernameValue },
           { headers: { Authorization: `Bearer ${token}` } }
         );
-        toast.success("Username updated successfully");
-        updateUser(value, email || "");
-      } else if (editField === "email") {
-        await api.post(
-          "/update-email",
-          { newEmail: value },
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        toast.success("Email updated successfully");
-        updateUser(username || "", value);
+
+        toast.success(res.data?.message || "Username updated successfully");
+        updateUser(usernameValue, email || "");
+        setEditField(null);
       }
-      setEditField(null);
+
+      if (editField === "email" && emailValue.trim()) {
+        const res = await api.post(
+          "/update-email",
+          { newEmail: emailValue },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        console.log("API Response:", res.data);
+        toast.success(
+          res.data?.message || "OTP sent to new email, please verify!"
+        );
+        setShowOtpModal(true);
+        console.log("OTP Modal State after save:", showOtpModal);
+      }
     } catch (error: any) {
-      toast.error(error.response?.data?.message || "Update failed");
+      toast.error(error?.response?.data?.message || "Update failed");
     } finally {
       setLoading(false);
     }
@@ -71,8 +90,8 @@ const Profile = () => {
               <div className="flex items-center gap-2">
                 <input
                   type="text"
-                  value={value}
-                  onChange={(e) => setValue(e.target.value)}
+                  value={usernameValue}
+                  onChange={(e) => setUsernameValue(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
                   autoFocus
                 />
@@ -80,7 +99,6 @@ const Profile = () => {
                   className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 transition-colors font-medium"
                   type="button"
                   onClick={handleSave}
-                  disabled={loading || !value.trim()}
                 >
                   {loading ? (
                     <span className="animate-spin inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full align-middle"></span>
@@ -119,8 +137,8 @@ const Profile = () => {
               <div className="flex items-center gap-2">
                 <input
                   type="email"
-                  value={value}
-                  onChange={(e) => setValue(e.target.value)}
+                  value={emailValue}
+                  onChange={(e) => setEmailValue(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
                   autoFocus
                 />
@@ -128,7 +146,6 @@ const Profile = () => {
                   className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 transition-colors font-medium"
                   type="button"
                   onClick={handleSave}
-                  disabled={loading || !value.trim()}
                 >
                   {loading ? (
                     <span className="animate-spin inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full align-middle"></span>
@@ -173,6 +190,13 @@ const Profile = () => {
               {verified ? "Verified" : "Not Verified"}
             </span>
           </div>
+
+          {showOtpModal && (
+            <OTPModel
+              email={emailValue}
+              onClose={() => setShowOtpModal(false)}
+            />
+          )}
 
           <div className="flex flex-col gap-2 mt-8">
             <button
