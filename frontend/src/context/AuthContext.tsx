@@ -1,5 +1,4 @@
 import { type ReactNode, createContext, useState, useContext } from "react";
-import { useNavigate } from "react-router-dom";
 
 interface AuthContextType {
   token: string | null;
