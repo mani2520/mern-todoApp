@@ -34,6 +34,7 @@ const Profile = () => {
 
   const handleSave = async () => {
     console.log("HandleSave called, editField =", editField);
+    console.log("editField =", editField, "emailValue =", emailValue);
     if (!editField) return;
     setLoading(true);
     try {
@@ -50,6 +51,7 @@ const Profile = () => {
       }
 
       if (editField === "email" && emailValue.trim()) {
+        console.log("Inside try, going to check API call...");
         const res = await api.post(
           "/update-email",
           { newEmail: emailValue },
@@ -63,6 +65,7 @@ const Profile = () => {
         console.log("OTP Modal State after save:", showOtpModal);
       }
     } catch (error: any) {
+      console.log("Update email error:", error.response?.data || error.message);
       toast.error(error?.response?.data?.message || "Update failed");
     } finally {
       setLoading(false);
