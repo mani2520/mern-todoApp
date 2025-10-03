@@ -17,6 +17,8 @@ const Profile = () => {
 
   const [showOtpModal, setShowOtpModal] = useState(false);
 
+  const [otpType, setOtpType] = useState<"verify" | "delete">("verify");
+
   const handleEdit = (field: "username" | "email") => {
     setEditField(field);
     if (field === "username") {
@@ -82,6 +84,22 @@ const Profile = () => {
       toast.error(error?.response?.data?.message || "Update failed");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDeleteRequest = async () => {
+    if (!token) return;
+    try {
+      const res = await api.post(
+        `/delete-otp`,
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      toast.success(res.data?.message || "OTP sent for account deletion");
+      setShowOtpModal(true);
+      setOtpType("delete");
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Failed to send OTP");
     }
   };
 
@@ -246,28 +264,53 @@ const Profile = () => {
               className={`flex items-center gap-1 px-3 py-1 rounded font-medium transition-colors ${
                 verified
                   ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                  : loading
+                  ? "bg-blue-600 text-white opacity-70"
                   : "bg-blue-600 text-white hover:bg-blue-700"
               }`}
-              disabled={verified}
+              disabled={verified || loading}
               type="button"
               onClick={handleSendOtp}
-              aria-disabled={verified}
+              aria-disabled={verified || loading}
             >
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={2}
-                viewBox="0 0 24 24"
-                aria-hidden="true"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M16 12H8m0 0l4-4m-4 4l4 4"
-                />
-              </svg>
-              Verify
+              {loading ? (
+                <svg
+                  className="w-4 h-4 animate-spin text-white"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  />
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                  />
+                </svg>
+              ) : (
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth={2}
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M16 12H8m0 0l4-4m-4 4l4 4"
+                  />
+                </svg>
+              )}
+              {loading ? "Sending..." : "Verify"}
             </button>
           </div>
 
@@ -278,6 +321,7 @@ const Profile = () => {
                 setShowOtpModal(false);
                 setEditField(null);
               }}
+              otpType={otpType}
             />
           )}
 
@@ -294,7 +338,7 @@ const Profile = () => {
             <button
               className="w-full bg-red-600 text-white py-2 rounded hover:bg-red-700 transition-colors font-semibold"
               type="button"
-              disabled
+              onClick={handleDeleteRequest}
             >
               Delete Account
             </button>

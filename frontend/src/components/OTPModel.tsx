@@ -2,36 +2,57 @@ import { useState } from "react";
 import api from "../api/axios";
 import { toast } from "react-toastify";
 import { useAuth } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
 
 const OTPModel = ({
   email,
   onClose,
+  otpType = "verify",
 }: {
   email: string;
   onClose: () => void;
+  otpType?: "verify" | "delete";
 }) => {
   const [otp, setOtp] = useState("");
-  const { token, username, email: currentEmail, updateUser } = useAuth();
+  const {
+    token,
+    username,
+    email: currentEmail,
+    updateUser,
+    logout,
+  } = useAuth();
+
+  const navigate = useNavigate();
 
   const handleVerify = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       const endpoint =
-        email === currentEmail ? "/verify-email" : "/verify-new-email";
+        otpType === "verify"
+          ? email === currentEmail
+            ? "/verify-email"
+            : "/verify-new-email"
+          : "/delete-account";
       const res = await api.post(
         endpoint,
         { otp },
         { headers: { Authorization: `Bearer ${token}` } }
       );
-      toast.success(
-        res.data?.message || `Email ${email} verified successfully`
-      );
-      if (res.data?.email || res.data?.verified) {
-        updateUser(
-          username || "",
-          res.data.email || email,
-          res.data.verified || true
+      if (otpType === "delete") {
+        toast.success("Account deleted successfully!");
+        logout();
+        navigate("/login");
+      } else {
+        toast.success(
+          res.data?.message || `Email ${email} verified successfully`
         );
+        if (res.data?.email || res.data?.verified) {
+          updateUser(
+            username || "",
+            res.data.email || email,
+            res.data.verified || true
+          );
+        }
       }
       onClose();
     } catch (error: any) {
