@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import api from "../api/axios";
 import { toast } from "react-toastify";
 import OTPModel from "../components/OTPModel";
@@ -103,6 +103,19 @@ const Profile = () => {
     }
   };
 
+  useEffect(() => {
+    api
+      .get("/profile", { headers: { Authorization: `Bearer ${token}` } })
+      .then((res) => {
+        updateUser(
+          res.data.username,
+          res.data.email,
+          res.data.verified ?? true
+        );
+      })
+      .catch((err) => console.log(err));
+  }, [token]);
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="w-full max-w-md bg-white rounded-lg shadow-md p-8">
@@ -153,7 +166,7 @@ const Profile = () => {
               <div className="flex items-center gap-2">
                 <span className="text-gray-800">{username}</span>
                 <button
-                  className="text-blue-600 hover:underline text-sm px-2 py-1 rounded transition-colors"
+                  className="text-blue-600 cursor-pointer hover:underline text-sm px-2 py-1 rounded transition-colors"
                   type="button"
                   onClick={() => handleEdit("username")}
                 >
@@ -177,7 +190,7 @@ const Profile = () => {
                   autoFocus
                 />
                 <button
-                  className="bg-blue-600 text-white px-3 py-1 rounded hover:bg-blue-700 transition-colors font-medium"
+                  className="bg-blue-600 cursor-pointer text-white px-3 py-1 rounded hover:bg-blue-700 transition-colors font-medium"
                   type="button"
                   onClick={handleSave}
                 >
@@ -188,7 +201,7 @@ const Profile = () => {
                   )}
                 </button>
                 <button
-                  className="bg-gray-200 text-gray-700 px-3 py-1 rounded hover:bg-gray-300 transition-colors font-medium"
+                  className="bg-gray-200 cursor-pointer text-gray-700 px-3 py-1 rounded hover:bg-gray-300 transition-colors font-medium"
                   type="button"
                   onClick={handleCancel}
                   disabled={loading}
@@ -200,7 +213,7 @@ const Profile = () => {
               <div className="flex items-center gap-2">
                 <span className="text-gray-800">{email}</span>
                 <button
-                  className="text-blue-600 hover:underline text-sm px-2 py-1 rounded transition-colors"
+                  className="text-blue-600 cursor-pointer hover:underline text-sm px-2 py-1 rounded transition-colors"
                   type="button"
                   onClick={() => handleEdit("email")}
                 >
@@ -260,58 +273,60 @@ const Profile = () => {
                 )}
               </span>
             </div>
-            <button
-              className={`flex items-center gap-1 px-3 py-1 rounded font-medium transition-colors ${
-                verified
-                  ? "bg-gray-200 text-gray-400 cursor-not-allowed"
-                  : loading
-                  ? "bg-blue-600 text-white opacity-70"
-                  : "bg-blue-600 text-white hover:bg-blue-700"
-              }`}
-              disabled={verified || loading}
-              type="button"
-              onClick={handleSendOtp}
-              aria-disabled={verified || loading}
-            >
-              {loading ? (
-                <svg
-                  className="w-4 h-4 animate-spin text-white"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  aria-hidden="true"
-                >
-                  <circle
-                    className="opacity-25"
-                    cx="12"
-                    cy="12"
-                    r="10"
+            {!verified && (
+              <button
+                className={`flex items-center gap-1 px-3 py-1 rounded font-medium transition-colors ${
+                  verified
+                    ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                    : loading
+                    ? "bg-blue-600 text-white opacity-70"
+                    : "bg-blue-600 text-white hover:bg-blue-700"
+                }`}
+                disabled={verified || loading}
+                type="button"
+                onClick={handleSendOtp}
+                aria-disabled={verified || loading}
+              >
+                {loading ? (
+                  <svg
+                    className="w-4 h-4 animate-spin text-white"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    />
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
+                    />
+                  </svg>
+                ) : (
+                  <svg
+                    className="w-4 h-4"
+                    fill="none"
                     stroke="currentColor"
-                    strokeWidth="4"
-                  />
-                  <path
-                    className="opacity-75"
-                    fill="currentColor"
-                    d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-                  />
-                </svg>
-              ) : (
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth={2}
-                  viewBox="0 0 24 24"
-                  aria-hidden="true"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    d="M16 12H8m0 0l4-4m-4 4l4 4"
-                  />
-                </svg>
-              )}
-              {loading ? "Sending..." : "Verify"}
-            </button>
+                    strokeWidth={2}
+                    viewBox="0 0 24 24"
+                    aria-hidden="true"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M16 12H8m0 0l4-4m-4 4l4 4"
+                    />
+                  </svg>
+                )}
+                {loading ? "Sending..." : "Verify"}
+              </button>
+            )}
           </div>
 
           {showOtpModal && (
@@ -327,7 +342,7 @@ const Profile = () => {
 
           <div className="flex flex-col gap-2 mt-8">
             <button
-              className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition-colors font-semibold"
+              className="w-full cursor-pointer bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition-colors font-semibold"
               type="button"
               onClick={() => {
                 logout(), toast.success("Logged out successfully!");
@@ -336,7 +351,7 @@ const Profile = () => {
               Logout
             </button>
             <button
-              className="w-full bg-red-600 text-white py-2 rounded hover:bg-red-700 transition-colors font-semibold"
+              className="w-full cursor-pointer bg-red-600 text-white py-2 rounded hover:bg-red-700 transition-colors font-semibold"
               type="button"
               onClick={handleDeleteRequest}
             >

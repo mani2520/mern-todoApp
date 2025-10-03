@@ -11,7 +11,7 @@ const {
 const authMiddleware = require("../middleware/authMiddleware");
 const todoLimitMiddleware = require("../middleware/todoLimitMiddleware");
 
-router.get("/", authMiddleware, getTodos);
+router.get("/", getTodos);
 
 router.post("/", authMiddleware, todoLimitMiddleware, createTodo);
 
