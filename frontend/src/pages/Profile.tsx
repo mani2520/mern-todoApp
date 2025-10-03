@@ -32,9 +32,22 @@ const Profile = () => {
     setEmailValue(email || "");
   };
 
+  const handleSendOtp = async () => {
+    if (!token) return;
+    try {
+      const res = await api.post(
+        "/send-verify-otp",
+        {},
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      toast.success(res.data?.message || "OTP sent");
+      setShowOtpModal(true);
+    } catch (error: any) {
+      toast.error(error.response?.data?.message || "Failed to send OTP");
+    }
+  };
+
   const handleSave = async () => {
-    console.log("HandleSave called, editField =", editField);
-    console.log("editField =", editField, "emailValue =", emailValue);
     if (!editField) return;
     setLoading(true);
     try {
@@ -46,7 +59,7 @@ const Profile = () => {
         );
 
         toast.success(res.data?.message || "Username updated successfully");
-        updateUser(usernameValue, email || "");
+        updateUser(username || "", res.data.email || email, true);
         setEditField(null);
       }
 
@@ -179,25 +192,92 @@ const Profile = () => {
             )}
           </div>
 
-          <div className="flex items-center gap-2">
-            <label className="block text-gray-600 font-medium mb-1">
-              Verified
-            </label>
-            <span
-              className={`inline-block px-2 py-1 rounded text-xs font-semibold ${
+          <div className="flex items-center gap-4 mt-4">
+            <div className="flex items-center gap-2">
+              <span className="block text-gray-600 font-medium">Status:</span>
+              <span
+                className={`inline-flex items-center gap-1 px-2 py-1 rounded text-xs font-semibold ${
+                  verified
+                    ? "bg-green-100 text-green-700"
+                    : "bg-yellow-100 text-yellow-700"
+                }`}
+              >
+                {verified ? (
+                  <>
+                    <svg
+                      className="w-4 h-4 text-green-500"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                    Verified
+                  </>
+                ) : (
+                  <>
+                    <svg
+                      className="w-4 h-4 text-yellow-500"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                      viewBox="0 0 24 24"
+                      aria-hidden="true"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M12 8v4m0 4h.01"
+                      />
+                      <circle cx="12" cy="12" r="10" />
+                    </svg>
+                    Not Verified
+                  </>
+                )}
+              </span>
+            </div>
+            <button
+              className={`flex items-center gap-1 px-3 py-1 rounded font-medium transition-colors ${
                 verified
-                  ? "bg-green-100 text-green-700"
-                  : "bg-yellow-100 text-yellow-700"
+                  ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                  : "bg-blue-600 text-white hover:bg-blue-700"
               }`}
+              disabled={verified}
+              type="button"
+              onClick={handleSendOtp}
+              aria-disabled={verified}
             >
-              {verified ? "Verified" : "Not Verified"}
-            </span>
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2}
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M16 12H8m0 0l4-4m-4 4l4 4"
+                />
+              </svg>
+              Verify
+            </button>
           </div>
 
           {showOtpModal && (
             <OTPModel
               email={emailValue}
-              onClose={() => setShowOtpModal(false)}
+              onClose={() => {
+                setShowOtpModal(false);
+                setEditField(null);
+              }}
             />
           )}
 

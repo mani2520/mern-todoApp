@@ -7,7 +7,7 @@ interface AuthContextType {
   login: (tok: string, username: string, email: string) => void;
   logout: () => void;
   verified: boolean;
-  updateUser: (username: string, email: string) => void;
+  updateUser: (username: string, email: string, verified: boolean) => void;
 }
 
 export const AuthContext = createContext<AuthContextType>({
@@ -38,13 +38,20 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
 
   const [verified, setVerified] = useState(false);
 
-  const login = (tok: string, username: string, email: string) => {
+  const login = (
+    tok: string,
+    username: string,
+    email: string,
+    verified = false
+  ) => {
     setToken(tok);
     setUsername(username);
     setEmail(email);
+    setVerified(verified);
     localStorage.setItem("token", tok);
     localStorage.setItem("username", username);
     localStorage.setItem("email", email);
+    localStorage.setItem("verified", String(verified));
   };
 
   const logout = () => {
@@ -55,13 +62,20 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     localStorage.removeItem("token");
     localStorage.removeItem("username");
     localStorage.removeItem("email");
+    localStorage.removeItem("verified");
   };
 
-  const updateUser = (newUsername: string, newEmail: string) => {
+  const updateUser = (
+    newUsername: string,
+    newEmail: string,
+    verified: boolean
+  ) => {
     setUsername(newUsername);
     setEmail(newEmail);
+    setVerified(verified);
     localStorage.setItem("username", newUsername);
     localStorage.setItem("email", newEmail);
+    localStorage.setItem("verified", String(verified));
   };
 
   return (

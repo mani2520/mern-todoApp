@@ -77,19 +77,35 @@ router.post("/send-verify-otp", authMiddleware, async (req, res) => {
   }
 });
 
-router.post("/verify-email", async (req, res) => {
-  const { email, otp } = req.body;
-  const user = await User.findOne({ email });
+router.post("/verify-email", authMiddleware, async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+    const { otp } = req.body;
 
-  if (!user || user.emailOTP !== otp || user.emailOTPExpire < Date.now()) {
-    return res.status(400).json({ message: "Invalid or Expire OTP" });
-  }
-  (user.verified = true),
-    (user.emailOTP = undefined),
-    (user.emailOTPExpire = undefined),
+    if (!otp) return res.status(400).json({ message: "OTP required" });
+
+    if (
+      !user.emailOTP ||
+      user.emailOTP !== otp ||
+      user.emailOTPExpire < Date.now()
+    ) {
+      return res.status(400).json({ message: "Invalid or Expired OTP" });
+    }
+
+    user.verified = true;
+    user.emailOTP = undefined;
+    user.emailOTPExpire = undefined;
+
     await user.save();
 
-  res.json({ message: "Email verified successfully" });
+    res.json({
+      message: "Email verified successfully",
+      email: user.email,
+      verified: true,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
 });
 
 router.post(`/login`, async (req, res) => {

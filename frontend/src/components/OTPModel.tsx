@@ -11,21 +11,27 @@ const OTPModel = ({
   onClose: () => void;
 }) => {
   const [otp, setOtp] = useState("");
-  const { token, username, updateUser } = useAuth();
+  const { token, username, email: currentEmail, updateUser } = useAuth();
 
   const handleVerify = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      const endpoint =
+        email === currentEmail ? "/verify-email" : "/verify-new-email";
       const res = await api.post(
-        "/verify-new-email",
+        endpoint,
         { otp },
         { headers: { Authorization: `Bearer ${token}` } }
       );
       toast.success(
         res.data?.message || `Email ${email} verified successfully`
       );
-      if (res.data?.email) {
-        updateUser(username || "", res.data.email);
+      if (res.data?.email || res.data?.verified) {
+        updateUser(
+          username || "",
+          res.data.email || email,
+          res.data.verified || true
+        );
       }
       onClose();
     } catch (error: any) {
@@ -34,7 +40,7 @@ const OTPModel = ({
   };
 
   return (
-    <div className="fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-40">
+    <div className="fixed inset-0 flex items-center justify-center z-50 bg-black/30 backdrop-blur-sm">
       <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-sm">
         <h2 className="text-xl font-bold mb-2 text-gray-800 text-center">
           Verify OTP
