@@ -223,7 +223,7 @@ router.post("/forgot-password", async (req, res) => {
 
     Do not share it with anyone.`;
 
-    // await sendEmail(user.email, "Password Reset OTP", emailBodyContent);
+    await sendEmail(user.email, "Password Reset OTP", emailBodyContent);
 
     res.json({ message: "OTP sent to email" });
   } catch (error) {
